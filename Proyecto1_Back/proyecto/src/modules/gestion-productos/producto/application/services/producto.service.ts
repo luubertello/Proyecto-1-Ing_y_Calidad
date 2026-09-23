@@ -55,50 +55,96 @@ export class ProductoService {
 
   private readonly ENTITY_NAME = 'Producto';
 
+
+  //Refactorización de create//
   async create(dto: CreateProductoDto) {
-    this.logger.log(
-      `Creando un nuevo ${this.ENTITY_NAME} con denominación: ${dto.denominacion} a: ${dto.denominacion}`,
+    this.logger.log(`Creando un nuevo ${this.ENTITY_NAME}...`);
+
+    // 1. Orquestar validaciones de infraestructura y dependencias
+    const { marca, linea, usuario } = await this.validarYPrepararCreacion(dto);
+
+    // 2. Instanciar el Aggregate Root (Entidad)
+    const producto = new Producto();
+    
+    // Mapeo básico de datos
+    producto.costo = dto.costo ?? 0;
+    producto.porcentaje = dto.porcentaje ?? 0;
+    producto.stock = dto.stock ?? 0;
+    producto.stockMinimo = dto.stockMinimo ?? 0;
+    producto.utilizaStockMinimo = dto.utilizaStockMinimo ?? false;
+    
+    // Bandera para proteger la edición manual del CR-005
+    producto.denominacionManual = dto.denominacionManual ?? false;
+    if (producto.denominacionManual && dto.denominacion) {
+      producto.denominacion = dto.denominacion;
+    }
+
+    // Asignación de relaciones
+    producto.marca = marca;
+    producto.linea = linea;
+    producto.usuarioCreated = usuario;
+    
+    // 3. Ejecutar comportamientos de negocio en el Dominio
+    // Asumimos que 'presentacion' viene en el DTO para el CR-002 y CR-005
+    producto.generarDenominacion(
+      marca?.denominacion ?? '',
+      linea?.denominacion ?? '',
+      dto.presentacion ?? ''
     );
+    producto.calcularPrecio();
 
-    // Orquestar todas las validaciones
-    const { marca, linea, usuario } =
-      await this.validarYPrepararCreacion(dto);
-
-
-
-    const entity = await this.repository.create(
-      dto,
-      linea,
-      marca,
-
-      usuario,
-    );
+    // 4. Persistir la entidad con estado válido
+    // (Asegúrate de que tu repositorio tenga un método genérico para hacer save de la entidad)
+    const entityGuardada = await this.repository.save(producto);
 
     return MessageFrontUtils.createSimple(
       `${this.ENTITY_NAME}`,
-      entity.denominacion,
+      entityGuardada.denominacion,
       'creada',
     );
   }
 
+  //Refactorización de update//
   async update(id: number, dto: UpdateProductoDto) {
-    this.logger.log(`Actualizandox  ${this.ENTITY_NAME} con ID: ${id}`);
+    this.logger.log(`Actualizando ${this.ENTITY_NAME} con ID: ${id}`);
 
-    const { marca, linea, usuario } =
-      await this.validarYPrepararActualizacion(id, dto);
+    const { marca, linea, usuario } = await this.validarYPrepararActualizacion(id, dto);
 
-    const entity = await this.repository.update(
-      id,
-      dto,
-      linea,
-      marca,
+    // 1. Recuperar el Aggregate Root existente
+    const producto = await this.repository.findOne(id);
+    if (!producto) {
+      throw new NotFoundException(`${this.ENTITY_NAME} con ID ${id} no encontrado.`);
+    }
 
-      usuario,
-    );
+    // 2. Mapear solo los campos que vienen en el DTO para actualizar
+    if (dto.costo !== undefined) producto.costo = dto.costo;
+    if (dto.porcentaje !== undefined) producto.porcentaje = dto.porcentaje;
+    if (dto.stockMinimo !== undefined) producto.stockMinimo = dto.stockMinimo;
+    if (dto.utilizaStockMinimo !== undefined) producto.utilizaStockMinimo = dto.utilizaStockMinimo;
+    
+    if (dto.denominacionManual !== undefined) {
+      producto.denominacionManual = dto.denominacionManual;
+    }
+    if (producto.denominacionManual && dto.denominacion !== undefined) {
+      producto.denominacion = dto.denominacion;
+    }
+
+    // Actualizar relaciones si fueron modificadas
+    if (marca) producto.marca = marca;
+    if (linea) producto.linea = linea;
+    producto.usuarioUpdated = usuario;
+
+    // 3. Ejecutar las reglas del negocio ante los nuevos valores
+    // Siempre recalculamos por si editaron la marca, línea, presentación, costo o margen
+    producto.generarDenominacion(producto.marca.denominacion, producto.linea.denominacion, dto.presentacion ?? '');
+    producto.calcularPrecio();
+
+    // 4. Persistir la entidad validada
+    const entityActualizada = await this.repository.save(producto);
 
     return MessageFrontUtils.createSimple(
       `${this.ENTITY_NAME}`,
-      entity.denominacion,
+      entityActualizada.denominacion,
       'editada',
     );
   }
@@ -282,6 +328,7 @@ export class ProductoService {
     return this.ajustarStockInterno(uow, productoId, -cantidad, origen);
   }
 
+  //Refactorizado//
   private async ajustarStockInterno(
     uow: IUnitOfWork,
     productoId: number,
@@ -293,20 +340,14 @@ export class ProductoService {
       throw new Error(`Producto con ID ${productoId} no encontrado`);
     }
 
-    const stockActual = producto.stock ?? 0;
-    const nuevoStock = stockActual + delta;
-
-    // Política opcional
-    // if (nuevoStock < 0) throw ...
-
-    producto.stock = nuevoStock;
+    producto.ajustarStock(delta, origen ?? '');
     await this.repository.updateEntity(uow, producto);
 
     this.logger.log(
-      `[StockService] ${origen ?? 'Desconocido'} → ${stockActual} → ${nuevoStock}`,
+      `[StockService] ${origen ?? 'Desconocido'} → Stock actualizado a ${producto.stock}`,
     );
 
-    return nuevoStock;
+    return producto.stock;
   }
 
   /**

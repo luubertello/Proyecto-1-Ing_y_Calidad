@@ -80,4 +80,6 @@ export interface IProductoRepository {
   existsProductosActivosByLinea(lineaId: number): Promise<boolean>;
 
   findByIds(ids: number[]): Promise<Producto[]>;
+
+  save(producto: Producto): Promise<Producto>;
 }

@@ -73,12 +73,17 @@ export class CreateProductoDto {
   @Transform(({ value }) => value === 'true' || value === true)
   envioGratis?: boolean;
 
+  @IsBoolean()
+  @IsOptional()
+  denominacionManual?: boolean;  
+
   @IsOptional()
   @IsNumber()
   costo?: number;
 
   @IsBoolean()
   utilizaPack: boolean;
+
 
   @IsOptional()
   @IsInt()
@@ -87,6 +92,10 @@ export class CreateProductoDto {
   @IsOptional()
   @IsNumber()
   costoDolar?: number;
+
+  @IsString()
+  @IsOptional()
+  presentacion?: string;
 
   @IsNotEmpty({ message: 'La linea es obligatoria.' })
   @IsInt({ message: 'La linea  debe ser un número entero.' })
@@ -124,6 +133,7 @@ export class CreateProductoDto {
   @IsNotEmpty({ message: 'El usuarioCreatedId es obligatorio.' })
   @IsInt({ message: 'El usuarioCreatedId debe ser un número entero.' })
   usuarioCreatedId: number;
+
 
 
 }
