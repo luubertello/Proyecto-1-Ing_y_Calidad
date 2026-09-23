@@ -23,5 +23,6 @@
     "noFallthroughCasesInSwitch": false,
     
     "strictPropertyInitialization": false,
+    "types": ["jest", "node"],
   }
 }
