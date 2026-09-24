@@ -29,6 +29,10 @@ export class Producto {
   @Column({ type: 'text' })
   denominacion: string;
 
+  //Nuevo campo agregado para cumplir con CR-005
+  @Column('boolean', { default: false })
+  denominacionManual: boolean;
+
   @Index()
   @Column({ type: 'varchar', length: 255, nullable: true })
   codigoProveedor?: string | null;
@@ -74,7 +78,7 @@ export class Producto {
   costoDolar?: number;
 
   /*
-  Ultima cotizacion dolar por el cambio de precio si producto posee costo dolar
+  Ultima cotizacion dolar por el cambio de precio si producto posee costo dolar, se puede sacarrr
   */
   @MonetarioColumn()
   cotizacionDolar?: number;
@@ -172,4 +176,43 @@ export class Producto {
 
   @Column({ type: 'text', nullable: true })
   codigoReferencia?: string | null;
+
+
+  //Comportamientos del dominio DDD//
+ public calcularPrecio(): void {
+    if (this.costo == null || this.porcentaje == null) return;
+    
+    if (this.costo <= 0) {
+      throw new Error("Regla de Negocio: El costo debe ser mayor a 0.");
+    }
+    if (this.porcentaje < 0) {
+      throw new Error("Regla de Negocio: El margen no puede ser negativo.");
+    }
+
+    this.precio = this.costo + (this.costo * (this.porcentaje / 100));
+  }
+
+  public generarDenominacion(nombreMarca: string, nombreLinea: string, presentacion: string): void {
+    if (!this.denominacionManual) {
+      this.denominacion = `${nombreMarca} ${nombreLinea} ${presentacion}`.trim();
+    }
+  }
+
+  public ajustarStock(cantidadModificar: number, motivo: string): void {
+    if (!motivo || motivo.trim() === '') {
+      throw new Error("Regla de Negocio: Todo ajuste de stock requiere un motivo obligatorio.");
+    }
+    
+    const nuevoStock = this.stock + cantidadModificar;
+    if (nuevoStock < 0) {
+      throw new Error("Regla de Negocio: El stock no puede quedar en negativo.");
+    }
+    
+    this.stock = nuevoStock;
+  }
+
+  public estaBajoMinimo(): boolean {
+    if (!this.utilizaStockMinimo) return false;
+    return this.stock <= this.stockMinimo;
+  }
 }
