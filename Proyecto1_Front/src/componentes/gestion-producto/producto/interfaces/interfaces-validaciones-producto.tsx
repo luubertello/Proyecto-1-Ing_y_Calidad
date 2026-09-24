@@ -72,6 +72,8 @@ export const schema = (utilizaStockMinimo: boolean, utilizaPack: boolean, usaOfe
       if (value==null || costo == null ) return true;
       return value>= costo;
     }),
+    presentacionCantidad: yup.number().typeError("La cantidad debe ser numérica").min(0.01, "Debe ser mayor a 0").optional().nullable(),
+    presentacionUnidad: yup.string().oneOf(["L", "g", "kg", "unidad", "pack"], "Unidad inválida").optional().nullable(),
     porcentaje: yup.number().typeError("El porcentaje debe ser un valor númerico").min(0,"El porcentaje mínimo debe ser mayor o igual a 0").max(999, "El porcentaje máximo permitido es de 999").optional().nullable(),
     /* costoEnDolar: yup.boolean().optional().nullable(),
     costoDolar: yup.number().optional().nullable(),
@@ -167,6 +169,8 @@ export const transformData = (producto: Producto): FormValues => {
     stock: producto.stock ?? null,
     costo: producto.costo ?? null,
     precio: producto.precio ?? null,
+    presentacionCantidad: producto.presentacion?.cantidad ?? null,
+  presentacionUnidad: producto.presentacion?.unidad ?? null,
     porcentaje: producto.porcentaje ?? null,
    // oferta: producto.oferta ?? null,
     /* costoEnDolar: producto.costoEnDolar ?? null,

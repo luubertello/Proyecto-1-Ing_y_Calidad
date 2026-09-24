@@ -21,6 +21,10 @@ export class CreateLineaDto {
   })
   denominacion: string;
 
+  @IsNotEmpty({ message: 'La superlínea es obligatoria.' })
+  @IsInt({ message: 'La superlíneaId debe ser un número entero.' })
+  superLineaId?: number;
+
   @IsOptional()
   @IsInt()
   stockMinimo?: number;
