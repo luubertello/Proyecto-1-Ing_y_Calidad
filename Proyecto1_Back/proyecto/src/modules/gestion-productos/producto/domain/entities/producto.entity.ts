@@ -18,6 +18,8 @@ import { MonetarioColumn } from 'src/modules/common/decorators/monetario-column.
 import { CantidadColumn } from 'src/modules/common/decorators/cantidad-column.decorator';
 import { PorcentajeColumn } from 'src/modules/common/decorators/porcentaje-column.decorator';
 import { Proveedor } from 'src/modules/organizacion/proveedor/domain/entities/proveedor.entity';
+import { BadRequestException } from '@nestjs/common';
+
 
 @Entity('producto')
 export class Producto {
@@ -91,8 +93,9 @@ export class Producto {
   @MonetarioColumn()
   precio?: number;
 
-  @PorcentajeColumn()
-  porcentaje?: number;
+  // por default es 15% el porcentaje segun el dominio
+  @PorcentajeColumn(15.0)
+porcentaje?: number;
 
   @Column({ type: 'timestamp', nullable: true })
   fechaCosto?: Date;
@@ -182,12 +185,12 @@ export class Producto {
  public calcularPrecio(): void {
     if (this.costo == null || this.porcentaje == null) return;
     
-    if (this.costo <= 0) {
-      throw new Error("Regla de Negocio: El costo debe ser mayor a 0.");
-    }
-    if (this.porcentaje < 0) {
-      throw new Error("Regla de Negocio: El margen no puede ser negativo.");
-    }
+      if (this.costo <= 0) {
+    throw new BadRequestException('El costo debe ser mayor a 0.');
+  }
+  if (this.porcentaje < 0) {
+    throw new BadRequestException('El margen no puede ser negativo.');
+  }
 
     this.precio = this.costo + (this.costo * (this.porcentaje / 100));
   }
@@ -200,12 +203,12 @@ export class Producto {
 
   public ajustarStock(cantidadModificar: number, motivo: string): void {
     if (!motivo || motivo.trim() === '') {
-      throw new Error("Regla de Negocio: Todo ajuste de stock requiere un motivo obligatorio.");
+      throw new BadRequestException('El motivo es obligatorio.');
     }
     
     const nuevoStock = this.stock + cantidadModificar;
     if (nuevoStock < 0) {
-      throw new Error("Regla de Negocio: El stock no puede quedar en negativo.");
+      throw new BadRequestException('El stock no puede ser negativo.');
     }
     
     this.stock = nuevoStock;
