@@ -1,30 +1,30 @@
 import { Column } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
+import { UnidadPresentacion } from '../../enums/presentacion.enum';
 
 export class Presentacion {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   cantidad: number;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  unidad: string;
+  @Column({ type: 'enum', enum: UnidadPresentacion, nullable: true })
+  unidad: UnidadPresentacion;
 
-  
-  static crear(cantidad: number, unidad: string): Presentacion {
+  static crear(cantidad: number, unidad: UnidadPresentacion): Presentacion {
     if (cantidad == null || cantidad <= 0) {
       throw new BadRequestException('La cantidad de presentación debe ser mayor a 0.');
     }
-    if (!unidad || unidad.trim() === '') {
-      throw new BadRequestException('La unidad de presentación es obligatoria.');
+    if (!unidad || !Object.values(UnidadPresentacion).includes(unidad)) {
+      throw new BadRequestException('La unidad de presentación no es válida.');
     }
     const presentacion = new Presentacion();
     presentacion.cantidad = cantidad;
-    presentacion.unidad = unidad.trim();
+    presentacion.unidad = unidad;
     return presentacion;
   }
 
   toString(): string {
     if (this.cantidad == null || !this.unidad) return '';
-    return `${this.cantidad}${this.unidad}`; // ej: "2L", "1pack"
+    return `${this.cantidad}${this.unidad}`;
   }
 
   equals(otra?: Presentacion): boolean {
