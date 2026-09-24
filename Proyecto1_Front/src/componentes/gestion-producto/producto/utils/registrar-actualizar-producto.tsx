@@ -143,6 +143,9 @@ export default function RegistrarActualizarProductoForm({
           setValue("marcaId", producto.marca.id || 0);
           setSelectedMarca(producto.marca);
 
+          setValue("presentacionCantidad", producto.presentacion?.cantidad || 0);
+          setValue("presentacionUnidad", producto.presentacion?.unidad || "");
+
           
           setValue("denominacion", producto.denominacion || "");
           setValue("observacion", producto.observacion || null);
@@ -190,16 +193,24 @@ export default function RegistrarActualizarProductoForm({
       }
 
       if (producto) {
+        const { presentacionCantidad, presentacionUnidad, ...restoFormData } = formData;
         const payload = {
-          ...formData,
+          ...restoFormData,
+          presentacion: presentacionCantidad && presentacionUnidad
+            ? { cantidad: presentacionCantidad, unidad: presentacionUnidad }
+            : undefined,
           usuarioUpdatedId: usuarioId,
         };
 
         response = await ProductoService.actualizar(producto.id, payload);
       } else {
+        const { presentacionCantidad, presentacionUnidad, ...restoFormData } = formData;
         const payload = {
-          ...formData,
-          usuarioCreatedId: usuarioId,
+          ...restoFormData,
+          presentacion: presentacionCantidad && presentacionUnidad
+            ? { cantidad: presentacionCantidad, unidad: presentacionUnidad }
+            : undefined,
+          usuarioUpdatedId: usuarioId,
         };
 
         response = await ProductoService.nuevo(payload);
@@ -387,8 +398,42 @@ export default function RegistrarActualizarProductoForm({
                     disabled={producto && producto.sistema > 0 ? true : false}
                   />
 
-                  
+                  <CantidadesInput
+                    name="presentacionCantidad"
+                    label="Cantidad Presentación"
+                    value={watch("presentacionCantidad") || 0}
+                    onChange={(value) => setValue("presentacionCantidad", Number(value), { shouldValidate: true })}
+                    disabled={producto && producto.sistema > 0 ? true : false}
+                  />
 
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-gray-700">Unidad Presentación</label>
+                    <Select
+                      value={
+                        [
+                          { value: "L", label: "Litros" },
+                          { value: "g", label: "Gramos" },
+                          { value: "kg", label: "Kilogramos" },
+                          { value: "unidad", label: "Unidades" },
+                          { value: "pack", label: "Pack" },
+                        ].find((o) => o.value === watch("presentacionUnidad")) || null
+                      }
+                      options={[
+                        { value: "L", label: "Litros" },
+                        { value: "g", label: "Gramos" },
+                        { value: "kg", label: "Kilogramos" },
+                        { value: "unidad", label: "Unidades" },
+                        { value: "pack", label: "Pack" },
+                      ]}
+                      onChange={(opt) => setValue("presentacionUnidad", opt?.value || "", { shouldValidate: true })}
+                      isDisabled={producto && producto.sistema > 0 ? true : false}
+                    />
+                    {errors.presentacionUnidad && (
+                      <small className="text-red-500">{errors.presentacionUnidad?.message as string}</small>
+                    )}
+                  </div>
+                
+            
 
                   <FormInput
                     name="ubicacion"

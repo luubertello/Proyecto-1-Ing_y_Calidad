@@ -16,6 +16,8 @@ export interface FormValues {
   stock?: number | null;
   costo?: number | null;
   precio?: number | null;
+  presentacionCantidad?: number | null;
+  presentacionUnidad?: string | null;
   porcentaje?: number | null;
   /* costoEnDolar?: boolean | null;
   costoDolar?: number | null;

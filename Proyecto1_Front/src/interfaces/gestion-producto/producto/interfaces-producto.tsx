@@ -16,6 +16,10 @@ export interface Producto {
   //ubicacion?: string | null;
   costo?: number | null;
   precio?: number | null;
+  presentacion?: {
+    cantidad: number;
+    unidad: string;
+  };
   porcentaje?: number | null;
   //fechaCosto?: string | null;
  /*  costoEnDolar: boolean;
