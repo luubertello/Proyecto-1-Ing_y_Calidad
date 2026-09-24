@@ -510,5 +510,9 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
     }
   }
 
+    async save(producto: Producto): Promise<Producto> {
+    return await this.repository.save(producto);
+  }
+
 }
 

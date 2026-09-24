@@ -19,6 +19,7 @@ import { CantidadColumn } from 'src/modules/common/decorators/cantidad-column.de
 import { PorcentajeColumn } from 'src/modules/common/decorators/porcentaje-column.decorator';
 import { Proveedor } from 'src/modules/organizacion/proveedor/domain/entities/proveedor.entity';
 import { BadRequestException } from '@nestjs/common';
+import { Presentacion } from '../value-objects/presentacion.vo';
 
 
 @Entity('producto')
@@ -41,6 +42,9 @@ export class Producto {
 
   @Column({ type: 'text', nullable: true })
   codigoBarra?: string | null;
+
+  @Column(() => Presentacion)
+  presentacion?: Presentacion;
 
   // ========== PROVEEDOR ==========
   @ManyToOne(() => Proveedor, (pro) => pro.proveedoresOperacion, {
@@ -95,7 +99,7 @@ export class Producto {
 
   // por default es 15% el porcentaje segun el dominio
   @PorcentajeColumn(15.0)
-porcentaje?: number;
+  porcentaje?: number;
 
   @Column({ type: 'timestamp', nullable: true })
   fechaCosto?: Date;
@@ -195,11 +199,12 @@ porcentaje?: number;
     this.precio = this.costo + (this.costo * (this.porcentaje / 100));
   }
 
-  public generarDenominacion(nombreMarca: string, nombreLinea: string, presentacion: string): void {
-    if (!this.denominacionManual) {
-      this.denominacion = `${nombreMarca} ${nombreLinea} ${presentacion}`.trim();
-    }
+  public generarDenominacion(nombreMarca: string, nombreLinea: string, presentacion?: Presentacion): void {
+  if (!this.denominacionManual) {
+    const presentacionStr = presentacion?.toString() ?? '';
+    this.denominacion = `${nombreMarca} ${nombreLinea} ${presentacionStr}`.trim();
   }
+}
 
   public ajustarStock(cantidadModificar: number, motivo: string): void {
     if (!motivo || motivo.trim() === '') {

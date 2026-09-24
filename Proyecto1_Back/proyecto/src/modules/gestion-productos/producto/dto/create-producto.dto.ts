@@ -11,7 +11,10 @@ import {
   IsEnum,
   Min,
 } from 'class-validator';
+import { ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 import { AlicuotaIva } from 'src/modules/organizacion/enums/alicuota-iva.enum';
+import { PresentacionDto } from './presentacion.dto';
 
 export class CreateProductoDto {
   @Transform(({ value }) => value.trim().toLowerCase())
@@ -97,9 +100,10 @@ export class CreateProductoDto {
   @IsNumber()
   costoDolar?: number;
 
-  @IsString()
   @IsOptional()
-  presentacion?: string;
+  @ValidateNested()
+  @Type(() => PresentacionDto)
+  presentacion?: PresentacionDto;
 
   @IsNotEmpty({ message: 'La linea es obligatoria.' })
   @IsInt({ message: 'La linea  debe ser un número entero.' })

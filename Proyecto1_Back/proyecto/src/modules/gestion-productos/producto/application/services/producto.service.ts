@@ -27,6 +27,8 @@ import { ProductoRelatedEntitiesValidator } from '../../infraestructure/validato
 import { ProductoUniquenessValidator } from '../../infraestructure/validators/producto-uniqueness.validator.ts';
 import { UsuarioValidator } from 'src/modules/common/utils/validation/usuario-validator';
 import { ProductoDeletePolicy } from '../policies/producto-delete.policy';
+import { Presentacion } from '../../domain/value-objects/presentacion.vo';
+
 @Injectable()
 export class ProductoService {
   private readonly logger = new Logger(ProductoService.name);
@@ -86,10 +88,14 @@ export class ProductoService {
     
     // 3. Ejecutar comportamientos de negocio en el Dominio
     // Asumimos que 'presentacion' viene en el DTO para el CR-002 y CR-005
+    if (dto.presentacion) {
+      producto.presentacion = Presentacion.crear(dto.presentacion.cantidad, dto.presentacion.unidad);
+    }
+
     producto.generarDenominacion(
       marca?.denominacion ?? '',
       linea?.denominacion ?? '',
-      dto.presentacion ?? ''
+      producto.presentacion,
     );
     producto.calcularPrecio();
 
@@ -136,7 +142,11 @@ export class ProductoService {
 
     // 3. Ejecutar las reglas del negocio ante los nuevos valores
     // Siempre recalculamos por si editaron la marca, línea, presentación, costo o margen
-    producto.generarDenominacion(producto.marca.denominacion, producto.linea.denominacion, dto.presentacion ?? '');
+    if (dto.presentacion) {
+      producto.presentacion = Presentacion.crear(dto.presentacion.cantidad, dto.presentacion.unidad);
+    }
+
+    producto.generarDenominacion(producto.marca.denominacion, producto.linea.denominacion, producto.presentacion);
     producto.calcularPrecio();
 
     // 4. Persistir la entidad validada

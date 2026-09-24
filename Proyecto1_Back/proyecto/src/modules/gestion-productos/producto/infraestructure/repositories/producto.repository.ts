@@ -182,4 +182,8 @@ export class ProductoRepository implements IProductoRepository {
    return this.persistenceService.existsByCodigoProveedor(codigoProveedor, excludeId);
   }
 
+  async save(producto: Producto): Promise<Producto> {
+  return await this.persistenceService.save(producto);
+  }
+
 }
