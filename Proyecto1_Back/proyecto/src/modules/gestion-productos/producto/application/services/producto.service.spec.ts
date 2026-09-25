@@ -73,4 +73,84 @@ describe('ProductoService - Orquestación y DDD', () => {
       expect(producto.stock).toBe(7); // Validamos que la entidad mutó su estado
     });
   });
+
+  describe('US-007: Registro histórico de cambios de precio (CR-007)', () => {
+    it('debe registrar un nuevo HistorialPrecio cuando el precio del producto cambia', async () => {
+      // Given
+      const productoExistente = new Producto();
+      productoExistente.id = 1;
+      productoExistente.marcaId = 1;
+      productoExistente.lineaId = 1;
+      productoExistente.costo = 1000;
+      productoExistente.porcentaje = 50;
+      productoExistente.precio = 1500;
+      productoExistente.denominacion = 'Producto Test Base';
+      productoExistente.denominacionManual = false;
+      productoExistente.marca = { id: 1, denominacion: 'Marca Test' } as any;
+      productoExistente.linea = { id: 1, denominacion: 'Linea Test' } as any;
+      productoExistente.historialPrecios = [];
+
+      mockRepository.findOne.mockResolvedValue(productoExistente);
+      mockRepository.updateEntity.mockResolvedValue(productoExistente);
+      mockRepository.save.mockResolvedValue(productoExistente);
+
+      jest.spyOn(service as any, 'validarYPrepararActualizacion').mockResolvedValue({
+        marca: productoExistente.marca,
+        linea: productoExistente.linea,
+        usuario: { id: 1 },
+      });
+
+      const updateDto = {
+        costo: 2000,
+        motivo: 'Aumento por lista de proveedor',
+      };
+
+      // When
+      await service.update(1, updateDto as any);
+
+      // Then
+      expect(productoExistente.precio).toBe(3000);
+      expect(productoExistente.historialPrecios.length).toBe(1);
+      expect(productoExistente.historialPrecios[0].precioAnterior).toBe(1500);
+      expect(productoExistente.historialPrecios[0].precioNuevo).toBe(3000);
+      expect(productoExistente.historialPrecios[0].motivo).toBe('Aumento por lista de proveedor');
+    });
+
+    it('no debe registrar entrada en HistorialPrecio si la actualización no altera el precio', async () => {
+      // Given
+      const productoExistente = new Producto();
+      productoExistente.id = 1;
+      productoExistente.marcaId = 1;
+      productoExistente.lineaId = 1;
+      productoExistente.costo = 1000;
+      productoExistente.porcentaje = 50;
+      productoExistente.precio = 1500;
+      productoExistente.denominacion = 'Producto Test Base';
+      productoExistente.denominacionManual = false;
+      productoExistente.marca = { id: 1, denominacion: 'Marca Test' } as any;
+      productoExistente.linea = { id: 1, denominacion: 'Linea Test' } as any;
+      productoExistente.historialPrecios = [];
+
+      mockRepository.findOne.mockResolvedValue(productoExistente);
+      mockRepository.updateEntity.mockResolvedValue(productoExistente);
+      mockRepository.save.mockResolvedValue(productoExistente);
+
+      jest.spyOn(service as any, 'validarYPrepararActualizacion').mockResolvedValue({
+        marca: productoExistente.marca,
+        linea: productoExistente.linea,
+        usuario: { id: 1 },
+      });
+
+      const updateDto = {
+        observacion: 'Actualización de notas internas',
+      };
+
+      // When
+      await service.update(1, updateDto as any);
+
+      // Then
+      expect(productoExistente.precio).toBe(1500);
+      expect(productoExistente.historialPrecios.length).toBe(0);
+    });
+  });
 });
