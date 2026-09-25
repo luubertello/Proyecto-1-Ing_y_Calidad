@@ -31,10 +31,10 @@ export class Linea {
   productos: Producto[];
 
   @ManyToOne(() => SuperLinea, (superLinea) => superLinea.lineas)
-  @JoinColumn({ name: 'super_linea_id' })
+  @JoinColumn({ name: 'superLineaId' })
   superLinea: SuperLinea;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', name: 'superLineaId' })
   superLineaId: number;
  
   @Column('boolean', { default: false })

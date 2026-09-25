@@ -22,6 +22,9 @@ export class LineaDto {
   denominacion: string;
 
   @IsOptional()
+  superLinea?: { id: number; denominacion: string };
+
+  @IsOptional()
   @IsInt()
   stockMinimo?: number;
 
