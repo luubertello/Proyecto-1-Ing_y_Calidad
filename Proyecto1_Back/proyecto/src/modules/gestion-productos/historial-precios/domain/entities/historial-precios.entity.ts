@@ -23,17 +23,16 @@ export class HistorialPrecio {
   @Column({ type: 'text' })
   motivo: string;
 
-  // TypeORM asigna la fecha automáticamente al hacer el INSERT
   @CreateDateColumn()
   fecha: Date;
 
   @ManyToOne(() => Producto, (producto) => producto.historialPrecios, {
-    onDelete: 'CASCADE', 
+    onDelete: 'CASCADE',
   })
-  
-  @JoinColumn({ name: 'producto_id' })
+  @JoinColumn({ name: 'productoId' }) 
   producto: Producto;
 
-  @Column({ type: 'int' })
+  @Column({ name: 'productoId', type: 'int' }) 
   productoId: number;
+
 }

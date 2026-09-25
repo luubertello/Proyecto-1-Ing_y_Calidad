@@ -69,6 +69,9 @@ export class ProductoRepository implements IProductoRepository {
     return this.persistenceService.updateEntity(uow, data);
   }
 
+  async obtenerHistorialPrecios(productoId: number): Promise<any[]> {
+    return this.persistenceService.obtenerHistorialPrecios(productoId);
+  }
 
   async findBy(
     denominacion: string,
@@ -185,5 +188,6 @@ export class ProductoRepository implements IProductoRepository {
   async save(producto: Producto): Promise<Producto> {
   return await this.persistenceService.save(producto);
   }
+  
 
 }

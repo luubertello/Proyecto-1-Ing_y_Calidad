@@ -394,6 +394,12 @@ export class ProductoService {
     return producto.stock;
   }
 
+  async obtenerHistorialPrecios(id: number) {
+    // Validamos que el producto exista
+    await this.findEntityById(id);
+    return await this.repository.obtenerHistorialPrecios(id);
+  }
+
   /**
    * Orquesta todas las validaciones necesarias para crear un producto
    * @private
@@ -455,19 +461,21 @@ export class ProductoService {
       );
 
     if (
-      productoActual.lineaId == null ||
-      productoActual.marcaId == null
+      (productoActual.lineaId == null && !productoActual.linea) ||
+      (productoActual.marcaId == null && !productoActual.marca)
     ) {
-      throw new InternalServerErrorException('Producto en estado inválido');
+      throw new InternalServerErrorException('Producto en estado inválido (sin línea o marca asignada)');
     }
+
+    const marcaIdActual = productoActual.marcaId ?? productoActual.marca?.id;
+    const lineaIdActual = productoActual.lineaId ?? productoActual.linea?.id;
 
     //  Validar datos intrínsecos
     this.intrinsicValidationService.validarDatosBasicos({
       denominacion: dto.denominacion ?? productoActual.denominacion,
-      marcaId: dto.marcaId ?? productoActual.marcaId,
-      lineaId: dto.lineaId ?? productoActual.lineaId,
+      marcaId: dto.marcaId ?? marcaIdActual, 
+      lineaId: dto.lineaId ?? lineaIdActual, 
       alicuotaIva: dto.alicuotaIva ?? productoActual.alicuotaIva,
-
     });
 
     // Validar unicidad (excluyendo el ID actual)
@@ -479,11 +487,10 @@ export class ProductoService {
     }
 
     // Validar entidades relacionadas
-    const { marca, linea, } =
+    const { marca, linea } =
       await this.relatedEntitiesValidator.validarYObtenerEntidadesRelacionadas(
-        dto.marcaId ?? productoActual.marcaId,
-        dto.lineaId ?? productoActual.lineaId,
-
+        dto.marcaId ?? productoActual.marcaId ?? productoActual.marca?.id ?? 0,
+        dto.lineaId ?? productoActual.lineaId ?? productoActual.linea?.id ?? 0,
       );
 
     //  Validar reglas de negocio

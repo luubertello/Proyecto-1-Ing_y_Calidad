@@ -125,6 +125,22 @@ const ProductoService = {
     );
     return data;
   },
+
+  obtenerHistorialPrecios: async (id: number) => {
+    try {
+      const token = localStorage.getItem("Token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const { data } = await axios.get(`${apiUrl}/producto/${id}/historial-precios`, { headers });
+      
+      return data;
+    } catch (error) {
+      console.error("Error al obtener historial de precios:", error);
+      throw error;
+    }
+  },
+
+  
 };
 
 export default ProductoService;

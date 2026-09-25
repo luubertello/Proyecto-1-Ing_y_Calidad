@@ -86,6 +86,12 @@ export default function RegistrarActualizarProductoForm({
   const [itemProdAlternativoSinAgregar, setItemProdAlternativoSinAgregar] = useState(false);
 
   const stock = watch(`stock`);
+  const costoForm = watch("costo");
+  const porcentajeForm = watch("porcentaje");
+  const isPrecioModificado = producto && (
+    Number(costoForm) !== Number(producto.costo) || 
+    Number(porcentajeForm) !== Number(producto.porcentaje)
+  );
   const presentacionCantidad = watch("presentacionCantidad");
   const presentacionUnidad = watch("presentacionUnidad");
   const denominacionManual = watch("denominacionManual");
@@ -199,10 +205,18 @@ export default function RegistrarActualizarProductoForm({
       }
     }, [selectedMarca, selectedLinea, presentacionCantidad, presentacionUnidad, denominacionManual, setValue]);
 
-  const onSubmit = async (formData: any) => {
+ const onSubmit = async (formData: any) => {
     let response: ResponsePost;
 
     try {
+      if (isPrecioModificado && (!formData.motivo || formData.motivo.trim() === "")) {
+        setError("root", { 
+          type: "manual", 
+          message: "Debes ingresar un motivo para registrar el cambio de precio." 
+        });
+        return; 
+      }
+
       // ⚠️ Validar si hay ítems sin agregar
       if (itemProdAlternativoSinAgregar) {
         const mensaje = [
@@ -215,10 +229,9 @@ export default function RegistrarActualizarProductoForm({
 
         const confirmar = window.confirm(mensaje);
 
-        if (!confirmar) return; // el usuario canceló
+        if (!confirmar) return; 
       }
 
-      // 1. Limpiamos los campos conflictivos para que no viajen al backend
       const { 
         presentacionCantidad, 
         presentacionUnidad, 
@@ -228,7 +241,6 @@ export default function RegistrarActualizarProductoForm({
         ...restoFormData 
       } = formData;
 
-      // 2. Armamos la presentación si existe
       const presentacion = presentacionCantidad && presentacionUnidad
         ? { cantidad: presentacionCantidad, unidad: presentacionUnidad }
         : undefined;
@@ -238,7 +250,8 @@ export default function RegistrarActualizarProductoForm({
         const payload = {
           ...restoFormData,
           presentacion,
-          usuarioUpdatedId: usuarioId, // Para editar
+          usuarioUpdatedId: usuarioId,
+          motivo: formData.motivo, 
         };
 
         response = await ProductoService.actualizar(producto.id, payload as any);
@@ -434,6 +447,22 @@ export default function RegistrarActualizarProductoForm({
                     onChange={(value) => setValue("porcentaje", value, { shouldValidate: true })}
                     disabled={producto && producto.sistema > 0 ? true : false}
                   />
+
+                  {isPrecioModificado && (
+                    <div className="col-span-full mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg w-full">
+                      <h4 className="text-amber-800 font-semibold mb-2 flex items-center gap-2">
+                        ⚠️ Detectamos un cambio en el precio
+                      </h4>
+                      <p className="text-sm text-amber-700 mb-3">
+                        Por motivos de auditoría, debes justificar esta modificación.
+                      </p>
+                      <FormInput
+                        name="motivo"
+                        label="Motivo del cambio (Obligatorio)"
+                        placeholder="Ej: Aumento de proveedor, ajuste por inflación..."
+                      />
+                    </div>
+                  )}
 
                 <div className="flex-1">
                   <label className="mb-2 block text-sm font-medium text-gray-700">Precio Calculado</label>

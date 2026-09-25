@@ -179,6 +179,10 @@ export class ProductoController {
     return this.service.remove(id, usuarioId);
   }
 
+  @Get(':id/historial-precios')
+  async getHistorialPrecios(@Param('id', ParseIntPipe) id: number) {
+    return await this.service.obtenerHistorialPrecios(id);
+  }
 
   @Get(':id/audit')
   @Roles('Root', 'Administrador', 'Empleado')

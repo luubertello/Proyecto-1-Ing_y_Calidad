@@ -14,6 +14,7 @@ import { CreateProductoDto } from '../../dto/create-producto.dto';
 import { UpdatePrecioDto } from '../../dto/update-precio.dto';
 import { UpdateProductoDto } from '../../dto/update-producto.dto';
 import { ProductoMapper } from '../../mappers/producto.mapper';
+import { HistorialPrecio } from 'src/modules/gestion-productos/historial-precios/domain/entities/historial-precios.entity';
 
 
 @Injectable()
@@ -508,6 +509,13 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
         'Error al conectar con la base de datos.',
       );
     }
+  }
+
+  async obtenerHistorialPrecios(productoId: number): Promise<any[]> {
+    return await this.dataSource.getRepository(HistorialPrecio).find({
+      where: { producto: { id: productoId } },
+      order: { fecha: 'DESC' }, 
+    });
   }
 
     async save(producto: Producto): Promise<Producto> {
