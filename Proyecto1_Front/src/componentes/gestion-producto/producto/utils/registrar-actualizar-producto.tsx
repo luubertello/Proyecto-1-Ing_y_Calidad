@@ -218,25 +218,36 @@ export default function RegistrarActualizarProductoForm({
         if (!confirmar) return; // el usuario canceló
       }
 
+      // 1. Limpiamos los campos conflictivos para que no viajen al backend
+      const { 
+        presentacionCantidad, 
+        presentacionUnidad, 
+        precio, 
+        usuarioCreatedId, 
+        usuarioUpdatedId, 
+        ...restoFormData 
+      } = formData;
+
+      // 2. Armamos la presentación si existe
+      const presentacion = presentacionCantidad && presentacionUnidad
+        ? { cantidad: presentacionCantidad, unidad: presentacionUnidad }
+        : undefined;
+
       if (producto) {
-        const { presentacionCantidad, presentacionUnidad, ...restoFormData } = formData;
+        // MODO EDICIÓN
         const payload = {
           ...restoFormData,
-          presentacion: presentacionCantidad && presentacionUnidad
-            ? { cantidad: presentacionCantidad, unidad: presentacionUnidad }
-            : undefined,
-          usuarioUpdatedId: usuarioId,
+          presentacion,
+          usuarioUpdatedId: usuarioId, // Para editar
         };
 
         response = await ProductoService.actualizar(producto.id, payload as any);
       } else {
-        const { presentacionCantidad, presentacionUnidad, ...restoFormData } = formData;
+        // MODO CREACIÓN
         const payload = {
           ...restoFormData,
-          presentacion: presentacionCantidad && presentacionUnidad
-            ? { cantidad: presentacionCantidad, unidad: presentacionUnidad }
-            : undefined,
-          usuarioUpdatedId: usuarioId,
+          presentacion,
+          usuarioCreatedId: usuarioId, // Para crear nuevo
         };
 
         response = await ProductoService.nuevo(payload as any);
@@ -415,14 +426,7 @@ export default function RegistrarActualizarProductoForm({
                     maxDigits={9}
                     disabled={producto && producto.sistema > 0 ? true : false}
                   />
-                  <PriceInput
-                    name="precio"
-                    label="Precio"
-                    value={watch("precio") || 0}
-                    onChange={(value) => setValue("precio", value, { shouldValidate: true })}
-                    maxDigits={9}
-                    disabled={producto && producto.sistema > 0 ? true : false}
-                  />
+
                   <PorcentajeInput
                     name="porcentaje"
                     label="Porcentaje"
@@ -430,6 +434,16 @@ export default function RegistrarActualizarProductoForm({
                     onChange={(value) => setValue("porcentaje", value, { shouldValidate: true })}
                     disabled={producto && producto.sistema > 0 ? true : false}
                   />
+
+                <div className="flex-1">
+                  <label className="mb-2 block text-sm font-medium text-gray-700">Precio Calculado</label>
+                  <input
+                    type="text"
+                    className="form-input bg-gray-100 cursor-not-allowed" // Estilos de bloqueado
+                    value={`$ ${((watch("costo") || 0) * (1 + (watch("porcentaje") || 0) / 100)).toFixed(2)}`}
+                    disabled
+                  />
+                </div>
 
                   <CantidadesInput
                     name="presentacionCantidad"
