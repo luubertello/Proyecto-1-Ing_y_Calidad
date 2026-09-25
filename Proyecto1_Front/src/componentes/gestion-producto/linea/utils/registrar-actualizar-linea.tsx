@@ -73,6 +73,10 @@ export default function RegistrarActualizarLineaForm({
   }, [utilizaStockMinimo]);
 
   useEffect(() => {
+    handleBuscarSuperLineaPorDenominacion();
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         if (linea) {
@@ -127,7 +131,7 @@ export default function RegistrarActualizarLineaForm({
   };
 
   const handleBuscarSuperLineaPorDenominacion = async () => {
-    const result = await SuperLineaService.obtenerTotales({ denominacion: denominacionSuperLinea }, "super-lineas");
+    const result = await SuperLineaService.obtener({ denominacion: denominacionSuperLinea, skip: 0, take: 100 });
     if (result) setSuperLineas(result.data);
   };
 
