@@ -6,6 +6,7 @@ import {
   IsString,
   MaxLength,
   Matches,
+  IsOptional,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -19,6 +20,10 @@ export class UpdateProductoDto extends PartialType(CreateProductoDto) {
       'La denominación solo puede contener letras, números, espacios, puntos, guiones y barras.',
   })
   denominacion: string;
+
+  @IsOptional()
+  @IsString({ message: 'El motivo debe ser una cadena de texto.' })
+  motivo?: string;
 
   @IsNotEmpty({ message: 'El usuarioUpdatedId es obligatorio.' })
   @IsInt({ message: 'El usuarioUpdatedId debe ser un número entero.' })

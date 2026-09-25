@@ -7,6 +7,7 @@ import {
   ManyToOne,
   Index,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Linea } from '../../../linea/domain/entities/linea.entity';
 import { Marca } from '../../../marca/domain/entities/marca.entity';
@@ -20,6 +21,7 @@ import { PorcentajeColumn } from 'src/modules/common/decorators/porcentaje-colum
 import { Proveedor } from 'src/modules/organizacion/proveedor/domain/entities/proveedor.entity';
 import { BadRequestException } from '@nestjs/common';
 import { Presentacion } from '../value-objects/presentacion.vo';
+import { HistorialPrecio } from 'src/modules/gestion-productos/historial-precios/domain/entities/historial-precios.entity';
 
 
 @Entity('producto')
@@ -183,6 +185,11 @@ export class Producto {
 
   @Column({ type: 'text', nullable: true })
   codigoReferencia?: string | null;
+
+  @OneToMany(() => HistorialPrecio, (historial) => historial.producto, {
+    cascade: true,
+  })
+  historialPrecios: HistorialPrecio[];
 
 
   //Comportamientos del dominio DDD//

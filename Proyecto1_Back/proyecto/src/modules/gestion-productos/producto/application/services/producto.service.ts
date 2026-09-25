@@ -28,6 +28,7 @@ import { ProductoUniquenessValidator } from '../../infraestructure/validators/pr
 import { UsuarioValidator } from 'src/modules/common/utils/validation/usuario-validator';
 import { ProductoDeletePolicy } from '../policies/producto-delete.policy';
 import { Presentacion } from '../../domain/value-objects/presentacion.vo';
+import { HistorialPrecio } from 'src/modules/gestion-productos/historial-precios/domain/entities/historial-precios.entity';
 
 @Injectable()
 export class ProductoService {
@@ -115,7 +116,7 @@ export class ProductoService {
     );
   }
 
-  //Refactorización de update//
+//Refactorización de update//
   async update(id: number, dto: UpdateProductoDto) {
     this.logger.log(`Actualizando ${this.ENTITY_NAME} con ID: ${id}`);
 
@@ -127,16 +128,23 @@ export class ProductoService {
       throw new NotFoundException(`${this.ENTITY_NAME} con ID ${id} no encontrado.`);
     }
 
+    // CR-007: Guardamos el precio actual antes de pisar los datos
+    const precioAnterior = producto.precio ?? 0;
+
     // 2. Mapear solo los campos que vienen en el DTO para actualizar
     if (dto.costo !== undefined) producto.costo = dto.costo;
     if (dto.porcentaje !== undefined) producto.porcentaje = dto.porcentaje;
     if (dto.stockMinimo !== undefined) producto.stockMinimo = dto.stockMinimo;
     if (dto.utilizaStockMinimo !== undefined) producto.utilizaStockMinimo = dto.utilizaStockMinimo;
+    
+    // Mapeo de códigos y textos
     if (dto.codigoProveedor !== undefined) producto.codigoProveedor = dto.codigoProveedor;
     if (dto.codigoReferencia !== undefined) producto.codigoReferencia = dto.codigoReferencia;
     if (dto.codigoBarra !== undefined) producto.codigoBarra = dto.codigoBarra;
     if (dto.observacion !== undefined) producto.observacion = dto.observacion;
     if (dto.alicuotaIva !== undefined) producto.alicuotaIva = dto.alicuotaIva;
+    
+    // Mapeo denominación manual
     if (dto.denominacionManual !== undefined) {
       producto.denominacionManual = dto.denominacionManual;
     }
@@ -150,7 +158,6 @@ export class ProductoService {
     producto.usuarioUpdated = usuario;
 
     // 3. Ejecutar las reglas del negocio ante los nuevos valores
-    // Siempre recalculamos por si editaron la marca, línea, presentación, costo o margen
     if (dto.presentacion) {
       producto.presentacion = Presentacion.crear(dto.presentacion.cantidad, dto.presentacion.unidad);
     }
@@ -158,7 +165,25 @@ export class ProductoService {
     producto.generarDenominacion(producto.marca.denominacion, producto.linea.denominacion, producto.presentacion);
     producto.calcularPrecio();
 
-    // 4. Persistir la entidad validada
+    // =========================================================
+    // CR-007: REGISTRO DE HISTORIAL DE PRECIO
+    // =========================================================
+    if (precioAnterior !== producto.precio) {
+      const historial = new HistorialPrecio();
+      historial.precioAnterior = precioAnterior;
+      historial.precioNuevo = producto.precio ?? 0;
+      
+      // Asumimos que vas a agregar "motivo" a tu UpdateProductoDto
+      historial.motivo = dto.motivo || 'Modificación manual desde formulario de edición'; 
+      
+      if (!producto.historialPrecios) {
+        producto.historialPrecios = [];
+      }
+      producto.historialPrecios.push(historial);
+    }
+    // =========================================================
+
+    // 4. Persistir la entidad validada (al tener cascade: true, guarda el historial automáticamente)
     const entityActualizada = await this.repository.save(producto);
 
     return MessageFrontUtils.createSimple(
