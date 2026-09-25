@@ -74,6 +74,11 @@ export class ProductoService {
     producto.stock = dto.stock ?? 0;
     producto.stockMinimo = dto.stockMinimo ?? 0;
     producto.utilizaStockMinimo = dto.utilizaStockMinimo ?? false;
+    producto.codigoProveedor = dto.codigoProveedor;
+    producto.codigoReferencia = dto.codigoReferencia;
+    producto.codigoBarra = dto.codigoBarra;
+    producto.observacion = dto.observacion;
+    producto.alicuotaIva = dto.alicuotaIva;
     
     // Bandera para proteger la edición manual del CR-005
     producto.denominacionManual = dto.denominacionManual ?? false;
@@ -127,7 +132,11 @@ export class ProductoService {
     if (dto.porcentaje !== undefined) producto.porcentaje = dto.porcentaje;
     if (dto.stockMinimo !== undefined) producto.stockMinimo = dto.stockMinimo;
     if (dto.utilizaStockMinimo !== undefined) producto.utilizaStockMinimo = dto.utilizaStockMinimo;
-    
+    if (dto.codigoProveedor !== undefined) producto.codigoProveedor = dto.codigoProveedor;
+    if (dto.codigoReferencia !== undefined) producto.codigoReferencia = dto.codigoReferencia;
+    if (dto.codigoBarra !== undefined) producto.codigoBarra = dto.codigoBarra;
+    if (dto.observacion !== undefined) producto.observacion = dto.observacion;
+    if (dto.alicuotaIva !== undefined) producto.alicuotaIva = dto.alicuotaIva;
     if (dto.denominacionManual !== undefined) {
       producto.denominacionManual = dto.denominacionManual;
     }

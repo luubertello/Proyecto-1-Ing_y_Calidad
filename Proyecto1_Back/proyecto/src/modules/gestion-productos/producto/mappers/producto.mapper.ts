@@ -84,6 +84,11 @@ export class ProductoMapper {
       cotizacionDolar: entity.cotizacionDolar ?? 0,
       precioDolar: entity.precioDolar ?? 0,
 
+      presentacion: entity.presentacion ? {
+        cantidad: entity.presentacion.cantidad,
+        unidad: entity.presentacion.unidad
+      } : undefined,
+
       destacado: entity.destacado ?? false,
 
       envioGratis: entity.envioGratis ?? false,

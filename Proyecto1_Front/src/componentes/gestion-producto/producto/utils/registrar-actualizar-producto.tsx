@@ -459,6 +459,7 @@ export default function RegistrarActualizarProductoForm({
                       value={
                         [
                           { value: "L", label: "Litros" },
+                          { value: "ml", label: "Mililitros" },
                           { value: "g", label: "Gramos" },
                           { value: "kg", label: "Kilogramos" },
                           { value: "unidad", label: "Unidades" },
@@ -467,6 +468,7 @@ export default function RegistrarActualizarProductoForm({
                       }
                       options={[
                         { value: "L", label: "Litros" },
+                        { value: "ml", label: "Mililitros" },
                         { value: "g", label: "Gramos" },
                         { value: "kg", label: "Kilogramos" },
                         { value: "unidad", label: "Unidades" },

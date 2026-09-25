@@ -7,10 +7,12 @@ import {
   IsInt,
   IsEnum,
   ValidateNested,
+  IsOptional,
 } from 'class-validator';
 import { AlicuotaIva } from 'src/modules/organizacion/enums/alicuota-iva.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ReferenciaDto } from 'src/modules/common/dto/referencia.dto';
+import { PresentacionDto } from './presentacion.dto';
 /*
 Se Utiliza cuando se necesita la entidad producto
 */
@@ -75,6 +77,11 @@ export class ProductoDto {
   @ApiProperty()
   @IsBoolean()
   destacado: boolean;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PresentacionDto)
+  presentacion?: PresentacionDto;
 
   @ApiProperty()
   @IsBoolean()
