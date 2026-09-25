@@ -15,6 +15,7 @@ import { FechaUtils } from 'src/modules/common/utils/date/fecha-utils';
 import { QueryBuilderHelper } from 'src/modules/common/query-builders/query-builder-helpers';
 import { BasePersistenceAdapter } from 'src/modules/common/persistence/base-persistence.adapter';
 import { handleDatabaseError } from 'src/modules/common/query-builders/database-error.helper';
+import { SuperLinea } from 'src/modules/gestion-productos/super-linea/domain/entities/super-linea.entity';
 
 @Injectable()
 export class LineaPersistenceAdapter
@@ -43,7 +44,7 @@ export class LineaPersistenceAdapter
       // Creamos la entidad sin sublíneas
       const nuevaEntity = repo.create({
         denominacion: data.denominacion,
-        superLineaId: data.superLineaId,
+        superLinea: { id: data.superLineaId },
         utilizaStockMinimo: data.utilizaStockMinimo,
         stockMinimo: data.stockMinimo,
         usuarioCreatedId: data.usuarioCreatedId,
@@ -83,6 +84,10 @@ export class LineaPersistenceAdapter
     entity.utilizaStockMinimo = data.utilizaStockMinimo;
     entity.stockMinimo = data.stockMinimo ?? 0;
     entity.usuarioCreatedId = data.usuarioCreatedId;
+
+    if (data.superLineaId) {
+      entity.superLinea = { id: data.superLineaId } as SuperLinea;
+    }
     
 
     // Guardar entidad antes de procesar sublíneas (opcional según lógica de negocio)

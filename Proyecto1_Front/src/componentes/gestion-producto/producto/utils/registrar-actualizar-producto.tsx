@@ -52,7 +52,7 @@ export default function RegistrarActualizarProductoForm({
   console.log("Configuración del sistema:", configuracion);
 
   const methods = useForm<FormValues>({
-    resolver: yupResolver(schema(rStockCritico, pack, usaOferta)),
+    resolver: yupResolver(schema(rStockCritico, pack, usaOferta)) as any,
     defaultValues: producto
       ? transformData(producto)
       : {
@@ -86,6 +86,9 @@ export default function RegistrarActualizarProductoForm({
   const [itemProdAlternativoSinAgregar, setItemProdAlternativoSinAgregar] = useState(false);
 
   const stock = watch(`stock`);
+  const presentacionCantidad = watch("presentacionCantidad");
+  const presentacionUnidad = watch("presentacionUnidad");
+  const denominacionManual = watch("denominacionManual");
   const stockMinimo = watch("stockMinimo");
   const cantidadPorPack = watch("cantidadPorPack");
   const utilizaStockMinimo = watch("utilizaStockMinimo");
@@ -134,6 +137,11 @@ export default function RegistrarActualizarProductoForm({
   }, [utilizaPack, utilizaStockMinimo, false]);
 
   useEffect(() => {
+    handleBuscarPorDenominacion("LINEA");
+    handleBuscarPorDenominacion("MARCA");
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         if (producto) {
@@ -148,6 +156,7 @@ export default function RegistrarActualizarProductoForm({
 
           
           setValue("denominacion", producto.denominacion || "");
+          setValue("denominacionManual", producto.denominacionManual || false);
           setValue("observacion", producto.observacion || null);
           setValue("codigoProveedor", producto.codigoProveedor || "");
           setValue("codigoBarra", producto.codigoBarra || null);
@@ -173,7 +182,24 @@ export default function RegistrarActualizarProductoForm({
     fetchData();
   }, [producto]);
 
-  const onSubmit = async (formData: FormValues) => {
+  useEffect(() => {
+      // Solo regenera el nombre si la bandera manual es falsa o indefinida
+      if (!denominacionManual) {
+        const nombreMarca = selectedMarca?.denominacion || "";
+        const nombreLinea = selectedLinea?.denominacion || "";
+        const cantidad = presentacionCantidad || "";
+        const unidad = presentacionUnidad || "";
+        
+        const presentacionStr = cantidad && unidad ? `${cantidad}${unidad}` : "";
+        
+        const nuevaDenominacion = `${nombreMarca} ${nombreLinea} ${presentacionStr}`.trim();
+        
+        // Actualiza el input automáticamente
+        setValue("denominacion", nuevaDenominacion, { shouldValidate: true });
+      }
+    }, [selectedMarca, selectedLinea, presentacionCantidad, presentacionUnidad, denominacionManual, setValue]);
+
+  const onSubmit = async (formData: any) => {
     let response: ResponsePost;
 
     try {
@@ -202,7 +228,7 @@ export default function RegistrarActualizarProductoForm({
           usuarioUpdatedId: usuarioId,
         };
 
-        response = await ProductoService.actualizar(producto.id, payload);
+        response = await ProductoService.actualizar(producto.id, payload as any);
       } else {
         const { presentacionCantidad, presentacionUnidad, ...restoFormData } = formData;
         const payload = {
@@ -213,7 +239,7 @@ export default function RegistrarActualizarProductoForm({
           usuarioUpdatedId: usuarioId,
         };
 
-        response = await ProductoService.nuevo(payload);
+        response = await ProductoService.nuevo(payload as any);
       }
 
       await onSuccess(response.mensaje);
@@ -254,7 +280,7 @@ export default function RegistrarActualizarProductoForm({
     }
   };
 
-  const handleEnterEnSelect = async (e: React.KeyboardEvent<HTMLInputElement>, select: string) => {
+  const handleEnterEnSelect = async (e: any, select: string) => {
     if (e.key === "Enter") {
       e.preventDefault();
 
@@ -327,8 +353,15 @@ export default function RegistrarActualizarProductoForm({
                         label="Denominación"
                         placeholder="Ingresa la denominación"
                         disabled={producto && producto.sistema > 0 ? true : false}
-                        onKeyDown={enterToObservacion}
                         inputRef={denominacionProductoRef}
+                        onKeyDown={(e: any) => {
+                          // 1. Activamos la bandera manual al tocar cualquier tecla
+                          setValue("denominacionManual", true);
+                          // 2. Mantenemos el comportamiento original que ya tenías
+                          if (enterToObservacion) {
+                            enterToObservacion(e);
+                          }
+                        }}
                       />
                     </div>
 
@@ -567,6 +600,7 @@ export default function RegistrarActualizarProductoForm({
                 onEnterDenominacion={enterToDenominacionMarca}
                 onLineaChange={(linea) => {
                   methods.setValue("lineaId", linea?.id || 0);
+                  setSelectedLinea(linea as any);
                   setLineaSeleccionada(linea as any);
                 }}
                 onAgregarLinea={() => setMostrarFormularioLinea(true)}
@@ -585,6 +619,7 @@ export default function RegistrarActualizarProductoForm({
                 onEnterMarca={(e) => handleEnterEnSelect(e, "MARCA")}
                 onChangeMarca={(marca) => {
                   methods.setValue("marcaId", marca?.id || 0);
+                  setSelectedMarca(marca as any);
                 }}
                 onAgregarMarca={() => setMostrarFormularioMarca(true)}
               />

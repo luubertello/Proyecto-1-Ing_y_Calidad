@@ -8,6 +8,7 @@ export interface Producto {
   //
   id: number;
   denominacion: string;
+  denominacionManual?: boolean;
   codigoProveedor?: string | null;
   codigoReferencia?: string | null;
   codigoBarra?: string | null;

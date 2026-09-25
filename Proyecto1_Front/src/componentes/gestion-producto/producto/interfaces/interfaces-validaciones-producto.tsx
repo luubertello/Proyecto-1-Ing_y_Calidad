@@ -9,6 +9,7 @@ import { ItemProdAlternativo } from "../../../../interfaces/gestion-producto/pro
 
 export interface FormValues {
   denominacion: string;
+  denominacionManual?: boolean;
   observacion?: string | null;
   codigoProveedor?: string | null;
   codigoReferencia?: string | null;
