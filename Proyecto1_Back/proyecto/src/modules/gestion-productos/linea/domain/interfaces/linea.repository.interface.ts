@@ -9,6 +9,7 @@ export interface ILineaRepository {
   create(data: CreateLineaDto): Promise<Linea>;
   findAllFor(denominacion: string): Promise<Linea[]>;
   findAllListado(): Promise<Linea[]>;
+  existsLineasActivasBySuperLinea(superLineaId: number): Promise<boolean>;
   findAllSinSistemaFor(denominacion: string): Promise<Linea[]>;
   findOne(id: number): Promise<Linea | null>;
   findByDenominacion(denominacion: string): Promise<Linea | null>;

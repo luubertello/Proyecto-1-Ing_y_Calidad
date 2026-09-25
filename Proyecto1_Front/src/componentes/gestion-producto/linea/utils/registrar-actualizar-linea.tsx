@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { CardContent, CardFooter } from "../../../ui/Card";
+import RegistrarActualizarSuperLineaForm from "../../super-linea/utils/registrar-actualizar-super-linea";
+import SuperLineaService from "../../super-linea/services/super-linea-service";
 import { Button } from "../../../ui/Button";
 import FormInput from "../../../herramientas/formateo-de-campos/form-input";
 import React from "react";
@@ -21,6 +23,8 @@ import {
   TituloAlertaConfirmacion,
   useConfirmation,
 } from "../../../herramientas/alertas/alertas-confirmacion";
+import { SelectSuperLinea } from "../../super-linea/interfaces/interfaces-super-linea";
+import SuperLineasSelector from "../../producto/componentes/configuracion/super-lineas-selector";
 
 export default function RegistrarActualizarLineaForm({
   linea,
@@ -34,6 +38,12 @@ export default function RegistrarActualizarLineaForm({
   const usuarioId = getUsuarioId();
   const { showConfirmation, AlertasConfirmacion } = useConfirmation();
   const [rStockCritico, setStockCritico] = useState(false);
+  const [superLineas, setSuperLineas] = useState<SelectSuperLinea[]>([]);
+  const [denominacionSuperLinea, setDenominacionSuperLinea] = useState("");
+  const [selectedSuperLinea, setSelectedSuperLinea] = useState<SelectSuperLinea>();
+  const [mostrarFormularioSuperLinea, setMostrarFormularioSuperLinea] = useState(false);
+  const denominacionSuperLineaRef = useRef<HTMLInputElement>(null);
+  const selectSuperLineaRef = useRef<HTMLDivElement>(null);
 
   const methods = useForm<FormValues>({
     resolver: yupResolver(schema(rStockCritico)) as any,
@@ -70,6 +80,7 @@ export default function RegistrarActualizarLineaForm({
           setValue("observacion", linea.observacion || null);
           setValue("stockMinimo", linea.stockMinimo || 0);
           setValue("utilizaStockMinimo", linea.utilizaStockMinimo || false);
+          setValue("superLineaId", linea.superLinea?.id || 0);
           
         }
       } catch (error) {
@@ -115,6 +126,18 @@ export default function RegistrarActualizarLineaForm({
     if (confirmed) onClose();
   };
 
+  const handleBuscarSuperLineaPorDenominacion = async () => {
+    const result = await SuperLineaService.obtenerTotales({ denominacion: denominacionSuperLinea }, "super-lineas");
+    if (result) setSuperLineas(result.data);
+  };
+
+  const handleEnterSuperLinea = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleBuscarSuperLineaPorDenominacion();
+    }
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 overflow-y-auto py-5">
       <Card className="relative w-full max-w-7xl bg-white mx-auto shadow-lg rounded-lg overflow-hidden mt-10 mb-12">
@@ -136,6 +159,27 @@ export default function RegistrarActualizarLineaForm({
                 <div className="lg:col-span-2">
                   <FormInput name="observacion" label="Observación" placeholder="Ingresa una observación (opcional)" />
                 </div>
+
+                <div className="lg:col-span-2">
+
+              <SuperLineasSelector
+                denominacionSuperLinea={denominacionSuperLinea}
+                setDenominacionSuperLinea={setDenominacionSuperLinea}
+                denominacionSuperLineaRef={denominacionSuperLineaRef}
+                selectSuperLineaRef={selectSuperLineaRef}
+                superLineas={superLineas}
+                selectedSuperLinea={selectedSuperLinea}
+                superLineaId={watch("superLineaId")}
+                disabled={linea?.sistema === 1}
+                error={errors.superLineaId?.message}
+                onEnterSuperLinea={handleEnterSuperLinea}
+                onChangeSuperLinea={(sl) => {
+                  setValue("superLineaId", sl?.id || 0, { shouldValidate: true });
+                  setSelectedSuperLinea(sl ?? undefined);
+                }}
+                onAgregarSuperLinea={() => setMostrarFormularioSuperLinea(true)}
+              />
+            </div>
 
                 <div className="flex items-end gap-2 lg:col-span-1">
                   <label className="flex items-center pb-2">
@@ -166,6 +210,15 @@ export default function RegistrarActualizarLineaForm({
             </form>
           </FormProvider>
         </fieldset>
+              {mostrarFormularioSuperLinea && (
+        <RegistrarActualizarSuperLineaForm
+          onClose={() => setMostrarFormularioSuperLinea(false)}
+          onSuccess={() => {
+            setMostrarFormularioSuperLinea(false);
+            handleBuscarSuperLineaPorDenominacion();
+          }}
+        />
+      )}
       </Card>
 
      

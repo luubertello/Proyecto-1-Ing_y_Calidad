@@ -10,7 +10,6 @@ export interface Linea {
   deletedAt: string | null;
   usuarioCreatedId: number;
   usuarioUpdatedId: number;
-  superlinea: SelectSuperlinea;
   sublineas: SelectSublinea[];
   sistema: number;
   stockMinimo: number | null;
@@ -18,6 +17,7 @@ export interface Linea {
   porcentajeOcasional: number;
   porcentajeMayorista: number;
   porcentajeCliente: number;
+  superLinea?: { id: number; denominacion: string } | null;
 }
 
 export interface DtoConsultarLinea {
