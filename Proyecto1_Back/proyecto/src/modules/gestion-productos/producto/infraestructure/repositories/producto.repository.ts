@@ -191,6 +191,10 @@ export class ProductoRepository implements IProductoRepository {
    return this.persistenceService.existsByCodigoProveedor(codigoProveedor, excludeId);
   }
 
+  async saveMasivo(productos: Producto[]): Promise<void> {
+  await this.persistenceService.saveMasivo(productos);
+}
+
   async save(producto: Producto): Promise<Producto> {
   return await this.persistenceService.save(producto);
   }
