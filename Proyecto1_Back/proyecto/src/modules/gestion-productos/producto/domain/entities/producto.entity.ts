@@ -22,6 +22,7 @@ import { Proveedor } from 'src/modules/organizacion/proveedor/domain/entities/pr
 import { BadRequestException } from '@nestjs/common';
 import { Presentacion } from '../value-objects/presentacion.vo';
 import { HistorialPrecio } from 'src/modules/gestion-productos/historial-precios/domain/entities/historial-precios.entity';
+import { MovimientoStock } from 'src/modules/gestion-productos/movimiento-stock/domain/entities/movimiento-stock.entity';
 
 
 @Entity('producto')
@@ -190,6 +191,11 @@ export class Producto {
     cascade: true,
   })
   historialPrecios: HistorialPrecio[];
+
+  @OneToMany(() => MovimientoStock, (movimiento) => movimiento.producto, {
+  cascade: true,
+  })
+  movimientosStock: MovimientoStock[];
 
 
   //Comportamientos del dominio DDD//

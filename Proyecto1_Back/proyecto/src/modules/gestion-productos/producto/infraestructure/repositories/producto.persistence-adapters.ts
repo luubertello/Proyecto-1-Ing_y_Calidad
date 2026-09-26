@@ -15,6 +15,7 @@ import { UpdatePrecioDto } from '../../dto/update-precio.dto';
 import { UpdateProductoDto } from '../../dto/update-producto.dto';
 import { ProductoMapper } from '../../mappers/producto.mapper';
 import { HistorialPrecio } from 'src/modules/gestion-productos/historial-precios/domain/entities/historial-precios.entity';
+import { MovimientoStock } from 'src/modules/gestion-productos/movimiento-stock/domain/entities/movimiento-stock.entity';
 
 
 @Injectable()
@@ -516,6 +517,13 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
     return await this.dataSource.getRepository(HistorialPrecio).find({
       where: { producto: { id: productoId } },
       order: { fecha: 'DESC' }, 
+    });
+  }
+
+  async obtenerMovimientosStock(productoId: number): Promise<any[]> {
+    return await this.dataSource.getRepository(MovimientoStock).find({
+      where: { producto: { id: productoId } },
+      order: { fecha: 'DESC' },
     });
   }
 

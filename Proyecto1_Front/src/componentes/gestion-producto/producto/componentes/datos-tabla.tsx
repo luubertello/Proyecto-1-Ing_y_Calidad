@@ -1,7 +1,11 @@
-import { Column, TablaAGGrid } from "../../../herramientas/tablas/tabla-flexible-ag-grid";
-import { ConsultarProducto, Producto} from "../../../../interfaces/gestion-producto/producto/interfaces-producto";
-import { ActionButton } from "../../../herramientas/reutilizables/action-button";
-import { Info, Pencil, Trash } from "lucide-react";
+
+import {
+  Column,
+  TablaAGGrid,
+} from "../../../herramientas/tablas/tabla-flexible-ag-grid";
+
+import type { ConsultarProducto } from "../../../../interfaces/gestion-producto/producto/interfaces-producto";
+
 import { ProductoActions } from "./producto-action";
 
 interface Props {
@@ -9,13 +13,8 @@ interface Props {
   columns: Column<ConsultarProducto>[];
   puedeAccionar: boolean;
   onEditar: (id: number) => void;
-  onInfo: (id: number) => void;
+  onAuditoria: (id: number) => void;
   onDelete: (id: number) => void;
-  onMovimientos: (id: number) => void;
-  onCambioPrecios: (id: number) => void;
-  onHistorial: (id: number) => void;
-  onNotificar: (producto: ConsultarProducto) => void;
-  
 }
 
 export function DatosTabla({
@@ -23,13 +22,8 @@ export function DatosTabla({
   columns,
   puedeAccionar,
   onEditar,
-  onInfo,
+  onAuditoria,
   onDelete,
-  onMovimientos,
-  onCambioPrecios,
-  onHistorial,
-  onNotificar,
-  ...actions
 }: Props) {
   return (
     <div className="hidden lg:block overflow-x-auto">
@@ -42,11 +36,8 @@ export function DatosTabla({
                 <ProductoActions
                   producto={row}
                   onEditar={onEditar}
-                  onInfo={onInfo}
+                  onAuditoria={onAuditoria}
                   onDelete={onDelete}
-                  onMovimientos={onMovimientos}
-                  onCambioPrecios={onCambioPrecios}
-                  onHistorial={onHistorial}
                 />
               )
             : undefined

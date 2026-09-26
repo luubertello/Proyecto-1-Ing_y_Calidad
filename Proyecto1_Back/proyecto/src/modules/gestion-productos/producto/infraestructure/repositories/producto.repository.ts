@@ -73,6 +73,10 @@ export class ProductoRepository implements IProductoRepository {
     return this.persistenceService.obtenerHistorialPrecios(productoId);
   }
 
+  async obtenerMovimientosStock(productoId: number): Promise<any[]> {
+    return this.persistenceService.obtenerMovimientosStock(productoId);
+  }
+
   async findBy(
     denominacion: string,
     codigoProveedor: string,

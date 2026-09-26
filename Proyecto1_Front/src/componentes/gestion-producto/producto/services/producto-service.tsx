@@ -166,6 +166,19 @@ const ProductoService = {
     }
   },
 
+  obtenerMovimientosStock: async (id: number) => {
+    try {
+      const token = localStorage.getItem("Token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const { data } = await axios.get(`${apiUrl}/producto/${id}/movimientos-stock`, { headers });
+      return data;
+    } catch (error) {
+      console.error("Error al obtener movimientos de stock:", error);
+      throw error;
+    }
+  },
+
   
 };
 

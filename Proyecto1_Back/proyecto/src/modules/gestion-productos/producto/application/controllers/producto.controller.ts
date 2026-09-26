@@ -53,7 +53,12 @@ export class ProductoController {
     this.logger.log(`Creando un nuevo ${this.ENTITY_NAME}...`);
     return this.service.create(createDto);
   }
-  
+
+  @Get(':id/movimientos-stock')
+  async getMovimientosStock(@Param('id', ParseIntPipe) id: number) {
+    return await this.service.obtenerMovimientosStock(id);
+  }
+    
   @Get('find-all-for-marcas/select')
   @Roles(
     'Root',

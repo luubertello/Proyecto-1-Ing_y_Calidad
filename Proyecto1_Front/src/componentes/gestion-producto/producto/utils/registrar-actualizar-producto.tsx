@@ -30,12 +30,11 @@ import { getUsuarioId } from "../../../../utils/auth";
 import RegistrarActualizarLineaForm from "../../linea/utils/registrar-actualizar-linea";
 import PorcentajeInput from "../../../herramientas/formateo-de-campos/porcentaje-input";
 
-// Título de sección reutilizable para mantener el orden visual
 function SeccionTitulo({ icon, titulo }: { icon: React.ReactNode; titulo: string }) {
   return (
-    <div className="col-span-full flex items-center gap-2 mt-4 mb-1">
+    <div className="col-span-full flex items-center gap-2 mt-3 mb-0.5">
       {icon}
-      <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">{titulo}</h3>
+      <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{titulo}</h3>
       <div className="flex-1 border-t border-gray-200 ml-2" />
     </div>
   );
@@ -50,16 +49,13 @@ export default function RegistrarActualizarProductoForm({
   onClose: () => void;
   onSuccess: (mensajeAlerta: string) => void;
 }) {
-  //===================== CONSTANTES VARIAS ============================================
   const usuarioId = getUsuarioId();
 
   const { configuracion } = useConfiguracionSistema();
   const [rStockCritico, setStockCritico] = useState(false);
-  const [pack, setPack] = useState(false);
   const [usaOferta, setUsaOferta] = useState(false);
   const [lineaSeleccionada, setLineaSeleccionada] = useState<Linea>({} as Linea);
 
-  // ===== Ajuste de stock (solo edición) =====
   const [mostrarAjusteStock, setMostrarAjusteStock] = useState(false);
   const [cantidadAjuste, setCantidadAjuste] = useState<number>(0);
   const [motivoAjuste, setMotivoAjuste] = useState("");
@@ -68,7 +64,7 @@ export default function RegistrarActualizarProductoForm({
   const [stockActualLocal, setStockActualLocal] = useState<number>(producto?.stock ?? 0);
 
   const methods = useForm<FormValues>({
-    resolver: yupResolver(schema(rStockCritico, pack, usaOferta)) as any,
+    resolver: yupResolver(schema(rStockCritico, usaOferta)) as any,
     defaultValues: producto
       ? transformData(producto)
       : {
@@ -106,11 +102,8 @@ export default function RegistrarActualizarProductoForm({
   const presentacionUnidad = watch("presentacionUnidad");
   const denominacionManual = watch("denominacionManual");
   const stockMinimo = watch("stockMinimo");
-  const cantidadPorPack = watch("cantidadPorPack");
   const utilizaStockMinimo = watch("utilizaStockMinimo");
-  const utilizaPack = watch("utilizaPack");
 
-  //=============================== CONSTANTES PARA MOVIMIENTO ENTRE CAMPOS ==================================
   const denominacionProductoRef = useRef<HTMLInputElement>(null);
   useEnterFocus(denominacionProductoRef);
   const observacionRef = useRef<HTMLInputElement>(null);
@@ -128,16 +121,11 @@ export default function RegistrarActualizarProductoForm({
   const enterToPrecioOferta = useEnterFocus(precioOfertaRef);
   const enterToDenominacionMarca = useEnterFocus(denominacionMarcaRef);
 
-  //=============================== FUNCIONALIDAD ==================================
-
   useEffect(() => {
     if (!utilizaStockMinimo) {
       setValue("stockMinimo", 0);
     }
-    if (!utilizaPack) {
-      setValue("cantidadPorPack", 0);
-    }
-  }, [utilizaStockMinimo, utilizaPack, false, setValue]);
+  }, [utilizaStockMinimo, false, setValue]);
 
   useEffect(() => {
     setValue("stockMinimo", lineaSeleccionada.stockMinimo || 0);
@@ -145,10 +133,9 @@ export default function RegistrarActualizarProductoForm({
   }, [lineaSeleccionada]);
 
   useEffect(() => {
-    setPack(utilizaPack || false);
     setStockCritico(utilizaStockMinimo || false);
     setUsaOferta(false);
-  }, [utilizaPack, utilizaStockMinimo, false]);
+  }, [utilizaStockMinimo, false]);
 
   useEffect(() => {
     handleBuscarPorDenominacion("LINEA");
@@ -180,8 +167,6 @@ export default function RegistrarActualizarProductoForm({
 
           setValue("stockMinimo", producto.stockMinimo || 0);
           setValue("utilizaStockMinimo", producto.utilizaStockMinimo || false);
-          setValue("cantidadPorPack", producto.cantidadPorPack || 0);
-          setValue("utilizaPack", producto.utilizaPack || false);
 
           setStockActualLocal(producto.stock || 0);
         }
@@ -248,7 +233,6 @@ export default function RegistrarActualizarProductoForm({
         : undefined;
 
       if (producto) {
-        // MODO EDICIÓN: el stock NO se manda acá, se ajusta aparte con motivo.
         const { stock, ...restoSinStock } = restoFormData;
         const payload = {
           ...restoSinStock,
@@ -259,7 +243,6 @@ export default function RegistrarActualizarProductoForm({
 
         response = await ProductoService.actualizar(producto.id, payload as any);
       } else {
-        // MODO CREACIÓN: acá sí se manda el stock inicial.
         const payload = {
           ...restoFormData,
           presentacion,
@@ -342,7 +325,6 @@ export default function RegistrarActualizarProductoForm({
     }
   };
 
-  // ===== Ajuste de stock =====
   const handleAbrirAjusteStock = () => {
     setCantidadAjuste(0);
     setMotivoAjuste("");
@@ -382,7 +364,7 @@ export default function RegistrarActualizarProductoForm({
 
   return (
     <div className="fixed inset-0 flex items-start justify-center bg-black bg-opacity-50 z-50 overflow-y-auto py-5">
-      <Card className="w-full max-w-7xl bg-white mx-auto shadow-lg rounded-2xl overflow-hidden relative mt-10 mb-12">
+      <Card className="w-full max-w-5xl bg-white mx-auto shadow-lg rounded-2xl overflow-hidden relative mt-10 mb-12">
         <EncabezadoFormularios
           title={producto ? "Producto" : "Registrar Producto"}
           subtitle={
@@ -396,7 +378,7 @@ export default function RegistrarActualizarProductoForm({
 
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 py-4">
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-3 px-6 py-3">
 
               {/* ============ SECCIÓN: IDENTIFICACIÓN ============ */}
               <SeccionTitulo icon={<PackageSearch size={16} className="text-gray-500" />} titulo="Identificación" />
@@ -458,95 +440,79 @@ export default function RegistrarActualizarProductoForm({
               <FormInput
                 name="codigoProveedor"
                 label="Código Interno"
-                placeholder="Ingresa el Código Interno"
+                placeholder="Código interno"
                 disabled={producto && producto.sistema > 0 ? true : false}
               />
 
               <FormInput
                 name="codigoReferencia"
                 label="Código Referencia"
-                placeholder="Ingresa el código de referencia"
+                placeholder="Código de referencia"
               />
 
               <FormInput
                 name="codigoBarra"
                 label="Código De Barra"
-                placeholder="Ingresa el código de barra (opcional)"
+                placeholder="Opcional"
                 inputRef={codigoBarraRef}
                 onKeyDown={(e) => handleEnterEnSelect(e, "ALICUOTA-IVA")}
               />
 
-              <FormInput
-                name="ubicacion"
-                label="Ubicación"
-                placeholder="Ingresa una ubicación (opcional)"
-                onKeyDown={(e) => handleEnterEnSelect(e, "TIPO-PRODUCTO")}
-                inputRef={ubicacionRef}
-              />
+              <div className="col-span-full md:col-span-1">
+                <FormInput
+                  name="ubicacion"
+                  label="Ubicación"
+                  placeholder="Opcional"
+                  onKeyDown={(e) => handleEnterEnSelect(e, "TIPO-PRODUCTO")}
+                  inputRef={ubicacionRef}
+                />
+              </div>
 
-              {/* ============ SECCIÓN: PRESENTACIÓN ============ */}
-              <SeccionTitulo icon={<Boxes size={16} className="text-gray-500" />} titulo="Presentación" />
+              {/* ============ SECCIÓN: PRESENTACIÓN Y PRECIO ============ */}
+              <SeccionTitulo icon={<Boxes size={16} className="text-gray-500" />} titulo="Presentación y Precio" />
 
-              <CantidadesInput
-                name="presentacionCantidad"
-                label="Cantidad Presentación"
-                value={watch("presentacionCantidad") || 0}
-                onChange={(value) => setValue("presentacionCantidad", Number(value), { shouldValidate: true })}
-                disabled={producto && producto.sistema > 0 ? true : false}
-              />
-
-              <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">Unidad Presentación</label>
-                <Select
-                  value={
-                    [
+              {/* Presentación: cantidad + unidad, juntas en un mismo bloque */}
+              <div className="col-span-full md:col-span-1 flex gap-2 items-end">
+                <div className="flex-1">
+                  <CantidadesInput
+                    name="presentacionCantidad"
+                    label="Presentación"
+                    value={watch("presentacionCantidad") || 0}
+                    onChange={(value) => setValue("presentacionCantidad", Number(value), { shouldValidate: true })}
+                    disabled={producto && producto.sistema > 0 ? true : false}
+                  />
+                </div>
+                <div className="flex-1">
+                  <Select
+                    value={
+                      [
+                        { value: "L", label: "Litros" },
+                        { value: "ml", label: "Mililitros" },
+                        { value: "g", label: "Gramos" },
+                        { value: "kg", label: "Kilogramos" },
+                        { value: "unidad", label: "Unidades" },
+                        { value: "pack", label: "Pack" },
+                      ].find((o) => o.value === watch("presentacionUnidad")) || null
+                    }
+                    options={[
                       { value: "L", label: "Litros" },
                       { value: "ml", label: "Mililitros" },
                       { value: "g", label: "Gramos" },
                       { value: "kg", label: "Kilogramos" },
                       { value: "unidad", label: "Unidades" },
                       { value: "pack", label: "Pack" },
-                    ].find((o) => o.value === watch("presentacionUnidad")) || null
-                  }
-                  options={[
-                    { value: "L", label: "Litros" },
-                    { value: "ml", label: "Mililitros" },
-                    { value: "g", label: "Gramos" },
-                    { value: "kg", label: "Kilogramos" },
-                    { value: "unidad", label: "Unidades" },
-                    { value: "pack", label: "Pack" },
-                  ]}
-                  onChange={(opt) => setValue("presentacionUnidad", opt?.value || "", { shouldValidate: true })}
-                  isDisabled={producto && producto.sistema > 0 ? true : false}
-                />
-                {errors.presentacionUnidad && (
-                  <small className="text-red-500">{errors.presentacionUnidad?.message as string}</small>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div>
-                  <label className="flex items-center space-x-2 mt-6">
-                    <input
-                      type="checkbox"
-                      {...methods.register("utilizaPack")}
-                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      disabled={producto && producto.sistema > 0 ? true : false}
-                    />
-                    <span className="text-sm text-gray-700">Utiliza Pack</span>
-                  </label>
+                    ]}
+                    onChange={(opt) => setValue("presentacionUnidad", opt?.value || "", { shouldValidate: true })}
+                    isDisabled={producto && producto.sistema > 0 ? true : false}
+                    placeholder="Unidad"
+                  />
                 </div>
-                <CantidadesInput
-                  name="cantidadPorPack"
-                  label="Cantidad Pack"
-                  value={cantidadPorPack || 0}
-                  onChange={(value) => setValue("cantidadPorPack", Number(value))}
-                  disabled={utilizaPack ? false : true}
-                />
               </div>
-
-              {/* ============ SECCIÓN: PRECIO ============ */}
-              <SeccionTitulo icon={<DollarSign size={16} className="text-gray-500" />} titulo="Precio" />
+              {errors.presentacionUnidad && (
+                <small className="text-red-500 col-span-full md:col-span-1 -mt-2">
+                  {errors.presentacionUnidad?.message as string}
+                </small>
+              )}
 
               <PriceInput
                 name="costo"
@@ -559,7 +525,7 @@ export default function RegistrarActualizarProductoForm({
 
               <PorcentajeInput
                 name="porcentaje"
-                label="Porcentaje (Margen)"
+                label="Margen (%)"
                 value={watch("porcentaje") || 0}
                 onChange={(value) => setValue("porcentaje", value, { shouldValidate: true })}
                 disabled={producto && producto.sistema > 0 ? true : false}
@@ -576,7 +542,7 @@ export default function RegistrarActualizarProductoForm({
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-700">Alicuota IVA</label>
+                <label className="mb-2 block text-sm font-medium text-gray-700">Alícuota IVA</label>
                 <div ref={selectAlicuotaIvaRef} className="w-full">
                   <Select
                     value={
@@ -618,11 +584,11 @@ export default function RegistrarActualizarProductoForm({
               </div>
 
               {isPrecioModificado && (
-                <div className="col-span-full mt-2 p-4 bg-amber-50 border border-amber-200 rounded-lg w-full">
-                  <h4 className="text-amber-800 font-semibold mb-2 flex items-center gap-2">
+                <div className="col-span-full mt-1 p-3 bg-amber-50 border border-amber-200 rounded-lg w-full">
+                  <h4 className="text-amber-800 font-semibold mb-1 flex items-center gap-2 text-sm">
                     ⚠️ Detectamos un cambio en el precio
                   </h4>
-                  <p className="text-sm text-amber-700 mb-3">
+                  <p className="text-xs text-amber-700 mb-2">
                     Por motivos de auditoría, debes justificar esta modificación.
                   </p>
                   <FormInput
@@ -637,7 +603,6 @@ export default function RegistrarActualizarProductoForm({
               <SeccionTitulo icon={<Boxes size={16} className="text-gray-500" />} titulo="Stock" />
 
               {!producto ? (
-                // Creación: se carga el stock inicial libremente
                 <CantidadesInput
                   name="stock"
                   label="Stock Inicial"
@@ -646,8 +611,7 @@ export default function RegistrarActualizarProductoForm({
                   disabled={false}
                 />
               ) : (
-                // Edición: solo lectura + botón de ajuste con motivo obligatorio
-                <div className="flex items-end gap-2">
+                <div className="col-span-full md:col-span-1 flex items-end gap-2">
                   <div className="flex-1">
                     <label className="mb-2 block text-sm font-medium text-gray-700">Stock Actual</label>
                     <input
@@ -668,30 +632,28 @@ export default function RegistrarActualizarProductoForm({
                 </div>
               )}
 
-              <div className="flex items-center gap-2">
-                <div>
-                  <label className="flex items-center space-x-2 mt-6">
-                    <input
-                      type="checkbox"
-                      {...methods.register("utilizaStockMinimo")}
-                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                      disabled={producto && producto.sistema > 0 ? true : false}
-                    />
-                    <span className="text-sm text-gray-700">Usa Stock Mínimo</span>
-                  </label>
+              <div className="flex items-end gap-2">
+                <label className="flex items-center gap-2 mb-2.5">
+                  <input
+                    type="checkbox"
+                    {...methods.register("utilizaStockMinimo")}
+                    className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    disabled={producto && producto.sistema > 0 ? true : false}
+                  />
+                  <span className="text-sm text-gray-700 whitespace-nowrap">Stock mínimo</span>
+                </label>
+                <div className="flex-1">
+                  <CantidadesInput
+                    name="stockMinimo"
+                    label=""
+                    value={stockMinimo || 0}
+                    onChange={(value) => setValue("stockMinimo", Number(value))}
+                    disabled={utilizaStockMinimo ? false : true}
+                  />
                 </div>
-                <CantidadesInput
-                  name="stockMinimo"
-                  label="Stock Mínimo"
-                  value={stockMinimo || 0}
-                  onChange={(value) => setValue("stockMinimo", Number(value))}
-                  disabled={utilizaStockMinimo ? false : true}
-                />
               </div>
 
               {/* ============ SECCIÓN: OBSERVACIONES ============ */}
-              <SeccionTitulo icon={<Settings2 size={16} className="text-gray-500" />} titulo="Observaciones" />
-
               <div className="col-span-full">
                 <FormInput
                   name="observacion"
@@ -703,9 +665,9 @@ export default function RegistrarActualizarProductoForm({
 
             </CardContent>
 
-            {errors.root?.message && <div className="text-red-600 text-center mb-4">{String(errors.root.message)}</div>}
+            {errors.root?.message && <div className="text-red-600 text-center mb-3">{String(errors.root.message)}</div>}
 
-            <CardFooter className="flex justify-center">
+            <CardFooter className="flex justify-center py-3">
               <Button type="submit" disabled={isSubmitting} className="btn btn-dark">
                 {isSubmitting
                   ? producto
@@ -739,7 +701,6 @@ export default function RegistrarActualizarProductoForm({
           />
         )}
 
-        {/* ============ MODAL: AJUSTE DE STOCK ============ */}
         {mostrarAjusteStock && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[60]">
             <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">

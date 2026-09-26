@@ -1,39 +1,32 @@
 import { Producto } from "../../../../interfaces/gestion-producto/producto/interfaces-producto";
-import InformacionAuditoria from "../../../herramientas/reutilizables/informacion-auditoria";
 import RegistrarActualizarProductoForm from "../utils/registrar-actualizar-producto";
-import HistorialPreciosModal from "./historial-precios-modales";
+import AuditoriaProductoModal from "./auditoria-producto-modal";
 
 interface Props {
   isAltaOpen: boolean;
   mostrarActualizarProducto: boolean;
-    mostrarInfoAuditoria: boolean;
-    mostrarMovimientosStock: boolean;
-    mostrarHistorialPrecios: boolean;
-    mostrarCambioPrecios: boolean;
-    mostrarProductosAlternativos: boolean;
-    mostrarDeQuienEsAlternativo: boolean;
-    productoSeleccionado: Producto | null;
-    productoInfo: any;
-    auditoria: any;
+  mostrarAuditoria: boolean;
+  mostrarCambioPrecios: boolean;
+  mostrarProductosAlternativos: boolean;
+  mostrarDeQuienEsAlternativo: boolean;
+  productoSeleccionado: Producto | null;
+  productoInfo: any;
+  auditoria: any;
   onCloseAlta: () => void;
-    onCloseActualizar: () => void;
-    onCloseAuditoria: () => void;
-    onCloseMovimientosStock: () => void;
-    onCloseHistorialPrecios: () => void;
-    onCloseCambioPrecios: () => void;
-    onCloseProductosAlternativos: () => void;
-    onCloseDeQuienEsAlternativo: () => void;
+  onCloseActualizar: () => void;
+  onCloseAuditoria: () => void;
+  onCloseCambioPrecios: () => void;
+  onCloseProductosAlternativos: () => void;
+  onCloseDeQuienEsAlternativo: () => void;
   onSuccessAlta: (mensaje: string, producto?: Producto) => void;
-    onSuccessActualizar: (mensaje: string) => void;
-    onRefetch: () => void;
+  onSuccessActualizar: (mensaje: string) => void;
+  onRefetch: () => void;
 }
 
 export function ProductosModales({
   isAltaOpen,
   mostrarActualizarProducto,
-  mostrarInfoAuditoria,
-  mostrarMovimientosStock,
-  mostrarHistorialPrecios,
+  mostrarAuditoria,
   mostrarCambioPrecios,
   mostrarProductosAlternativos,
   mostrarDeQuienEsAlternativo,
@@ -43,8 +36,6 @@ export function ProductosModales({
   onCloseAlta,
   onCloseActualizar,
   onCloseAuditoria,
-  onCloseMovimientosStock,
-  onCloseHistorialPrecios,
   onCloseCambioPrecios,
   onCloseProductosAlternativos,
   onCloseDeQuienEsAlternativo,
@@ -56,10 +47,7 @@ export function ProductosModales({
     <>
       {isAltaOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <RegistrarActualizarProductoForm
-            onClose={onCloseAlta}
-            onSuccess={onSuccessAlta}
-          />
+          <RegistrarActualizarProductoForm onClose={onCloseAlta} onSuccess={onSuccessAlta} />
         </div>
       )}
 
@@ -73,22 +61,11 @@ export function ProductosModales({
         </div>
       )}
 
-      {mostrarInfoAuditoria && auditoria && (
+      {mostrarAuditoria && productoInfo && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <InformacionAuditoria auditoria={auditoria} onClose={onCloseAuditoria} />
+          <AuditoriaProductoModal producto={productoInfo} auditoria={auditoria} onClose={onCloseAuditoria} />
         </div>
       )}
-
-      {mostrarHistorialPrecios && productoSeleccionado && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <HistorialPreciosModal
-            producto={productoInfo}
-            onClose={onCloseHistorialPrecios} 
-          />
-        </div>
-      )}
-
-
     </>
   );
 }

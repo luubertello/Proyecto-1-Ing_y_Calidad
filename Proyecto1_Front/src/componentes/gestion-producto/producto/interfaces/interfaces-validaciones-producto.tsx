@@ -31,9 +31,7 @@ export interface FormValues {
   /* ubicacion?: string | null;
   presentacionId: number; */
   stockMinimo?: number;
-  cantidadPorPack?: number;
   utilizaStockMinimo?: boolean;
-  utilizaPack?: boolean;
  /*  porcentajeOcasional: number;
   precioOcasional: number;
   porcentajeMayorista: number;
@@ -53,7 +51,7 @@ export interface ItemsProveedorEnPayload {
 
 //===================== schema de validacion ============================================//
 
-export const schema = (utilizaStockMinimo: boolean, utilizaPack: boolean, usaOferta: boolean) =>
+export const schema = (utilizaStockMinimo: boolean, usaOferta: boolean) =>
   yup.object().shape({
     denominacion: yup
       .string()
@@ -112,17 +110,11 @@ export const schema = (utilizaStockMinimo: boolean, utilizaPack: boolean, usaOfe
       then: (schema) => schema.required("El Stock minimo es obligatorio.").moreThan(0, "El stock minimo debe ser mayor a 0."),
       otherwise: (schema) => schema.optional(),
     }),
-    cantidadPorPack: yup.number().when([], {
-      is: () => utilizaPack,
-      then: (schema) => schema.required("La cantidad por pack es obligatoria.").moreThan(0, "La cantidad por pack debe ser mayor a 0."),
-      otherwise: (schema) => schema.optional(),
-    }),
    /*  cantidadOferta: yup.number().when([], {
       is: () => usaOferta,
       then: (schema) => schema.required("La cantidad de oferta es obligatoria.").moreThan(0, "La cantidad de oferta debe ser mayor a 0."),
       otherwise: (schema) => schema.optional(),
     }), */
-    utilizaPack: yup.boolean().optional(),
     utilizaStockMinimo: yup.boolean().optional(),
     /* porcentajeOcasional: yup
       .number()
@@ -187,9 +179,7 @@ export const transformData = (producto: Producto): FormValues => {
     presentacionId: producto.presentacion.id ?? 0,
  */
     stockMinimo: producto.stockMinimo ?? null,
-    cantidadPorPack: producto.cantidadPorPack ?? null,
     utilizaStockMinimo: producto.utilizaStockMinimo,
-    utilizaPack: producto.utilizaPack,
  //   cantidadOferta: producto.cantidadOferta ?? 0,
    /*  porcentajeOcasional: producto.porcentajeOcasional ?? 0,
     porcentajeMayorista: producto.porcentajeMayorista ?? 0,

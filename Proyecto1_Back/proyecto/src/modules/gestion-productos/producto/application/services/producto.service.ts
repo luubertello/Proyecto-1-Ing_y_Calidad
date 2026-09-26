@@ -31,6 +31,7 @@ import { Presentacion } from '../../domain/value-objects/presentacion.vo';
 import { HistorialPrecio } from 'src/modules/gestion-productos/historial-precios/domain/entities/historial-precios.entity';
 import { TipoCalculo, TipoModificacion, UpdatePrecioMasivoDto } from '../../dto/update-precio-masivo.dto';
 import { AjustarStockDto } from '../../dto/ajustar-stock.dto';
+import { MovimientoStock, TipoMovimientoStock } from 'src/modules/gestion-productos/movimiento-stock/domain/entities/movimiento-stock.entity';
 
 @Injectable()
 export class ProductoService {
@@ -564,21 +565,36 @@ export class ProductoService {
     return { marca, linea, usuario };
   }
 
+  async obtenerMovimientosStock(id: number) {
+    await this.findEntityById(id);
+    return await this.repository.obtenerMovimientosStock(id);
+  }
+
   async ajustarStockManual(id: number, dto: AjustarStockDto) {
-  const producto = await this.findEntityById(id);
-  const usuario = await this.usuarioValidator.validarUsuarioExiste(dto.usuarioId);
+    const producto = await this.findEntityById(id);
+    const usuario = await this.usuarioValidator.validarUsuarioExiste(dto.usuarioId);
 
-  producto.ajustarStock(dto.cantidad, dto.motivo);
-  producto.usuarioUpdated = usuario;
+    producto.ajustarStock(dto.cantidad, dto.motivo);
+    producto.usuarioUpdated = usuario;
 
-  const entityActualizada = await this.repository.save(producto);
+    const movimiento = new MovimientoStock();
+    movimiento.tipoMovimiento = TipoMovimientoStock.AJUSTE_MANUAL;
+    movimiento.cantidad = dto.cantidad;
+    movimiento.motivo = dto.motivo;
 
-  return MessageFrontUtils.createSimple(
-    `${this.ENTITY_NAME}`,
-    entityActualizada.denominacion,
-    'editada',
-  );
-}
+    if (!producto.movimientosStock) {
+      producto.movimientosStock = [];
+    }
+    producto.movimientosStock.push(movimiento);
+
+    const entityActualizada = await this.repository.save(producto);
+
+    return MessageFrontUtils.createSimple(
+      `${this.ENTITY_NAME}`,
+      entityActualizada.denominacion,
+      'editada',
+    );
+  }
 
 
 }

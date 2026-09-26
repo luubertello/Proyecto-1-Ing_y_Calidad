@@ -83,6 +83,8 @@ export interface IProductoRepository {
   findByIds(ids: number[]): Promise<Producto[]>;
 
   obtenerHistorialPrecios(productoId: number): Promise<any[]>;
+  obtenerMovimientosStock(productoId: number): Promise<any[]>;
+
   findByFiltrosParaMasivo(lineaId?: number, marcaId?: number, proveedorId?: number): Promise<Producto[]>;
   saveMasivo(productos: Producto[]): Promise<void>;
   save(producto: Producto): Promise<Producto>;
