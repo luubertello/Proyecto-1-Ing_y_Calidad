@@ -24,6 +24,7 @@ export default function ActualizacionMasivaModal({ onClose, onSuccess }: Props) 
   const [formData, setFormData] = useState({
     tipoModificacion: "COSTO",
     tipoCalculo: "PORCENTAJE",
+    signo: "AUMENTO",
     valor: "",
     motivo: "",
     lineaId: "",
@@ -87,11 +88,15 @@ export default function ActualizacionMasivaModal({ onClose, onSuccess }: Props) 
     try {
       setLoading(true);
       setError(null);
+
+      const valorConSigno = formData.signo === "DISMINUCION"
+        ? -Math.abs(Number(formData.valor))
+        : Math.abs(Number(formData.valor));
       
       const payload = {
         tipoModificacion: formData.tipoModificacion,
         tipoCalculo: formData.tipoCalculo,
-        valor: Number(formData.valor),
+        valor: valorConSigno,
         motivo: formData.motivo,
         lineaId: formData.lineaId ? Number(formData.lineaId) : undefined,
         marcaId: formData.marcaId ? Number(formData.marcaId) : undefined,
@@ -137,6 +142,14 @@ export default function ActualizacionMasivaModal({ onClose, onSuccess }: Props) 
             </select>
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Aplicar como</label>
+            <select name="signo" value={formData.signo} onChange={handleChange} className="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+              <option value="AUMENTO">Aumento</option>
+              <option value="DISMINUCION">Disminución</option>
+            </select>
+          </div>
+
           {/* Cómo modificar */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de cálculo</label>
@@ -154,7 +167,7 @@ export default function ActualizacionMasivaModal({ onClose, onSuccess }: Props) 
 
           {/* Valor */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Valor a incrementar</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Valor</label>
             <input type="number" step="0.01" name="valor" value={formData.valor} onChange={handleChange} placeholder="Ej: 15" className="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 bg-white" required />
           </div>
 

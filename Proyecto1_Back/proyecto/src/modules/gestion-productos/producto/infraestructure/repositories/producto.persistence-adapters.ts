@@ -537,7 +537,13 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
     return await query.getMany();
   }
 
-    async save(producto: Producto): Promise<Producto> {
+  @Transactional()
+  async saveMasivo(productos: Producto[]): Promise<void> {
+    const repo = this.uow.getRepository(Producto);
+    await repo.save(productos);
+  }
+
+  async save(producto: Producto): Promise<Producto> {
     return await this.repository.save(producto);
   }
 

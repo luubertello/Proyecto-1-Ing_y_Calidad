@@ -18,7 +18,6 @@ export class UpdatePrecioMasivoDto {
   tipoCalculo: TipoCalculo;
 
   @IsNumber()
-  @Min(0.01)
   valor: number;
 
   @IsString()

@@ -398,68 +398,62 @@ export class ProductoService {
   }
 
   async obtenerHistorialPrecios(id: number) {
-    // Validamos que el producto exista
     await this.findEntityById(id);
     return await this.repository.obtenerHistorialPrecios(id);
   }
 
   async actualizarPreciosMasivo(dto: UpdatePrecioMasivoDto, usuarioId: number) {
-    const usuario = await this.usuarioService.findOne(usuarioId); 
-    
-    const productosAfectados = await this.repository.findByFiltrosParaMasivo(
-      dto.lineaId,
-      dto.marcaId,
-      dto.proveedorId
-    );
-    
-    if (productosAfectados.length === 0) {
-      return { mensaje: 'No se encontraron productos que coincidan con los filtros.', actualizados: 0 };
-    }
+  const usuario = await this.usuarioService.findOne(usuarioId);
 
-    try {
-      for (const producto of productosAfectados) {
-        const precioAnterior = producto.precio ?? 0; 
-        const costoActual = producto.costo ?? 0; 
-        const porcentajeActual = producto.porcentaje ?? 0; 
+  const productosAfectados = await this.repository.findByFiltrosParaMasivo(
+    dto.lineaId,
+    dto.marcaId,
+    dto.proveedorId,
+  );
 
-        if (dto.tipoModificacion === TipoModificacion.COSTO) {
-          producto.costo = dto.tipoCalculo === TipoCalculo.PORCENTAJE
-            ? costoActual * (1 + dto.valor / 100)
-            : costoActual + Number(dto.valor);
-        } else if (dto.tipoModificacion === TipoModificacion.MARGEN) {
-          producto.porcentaje = dto.tipoCalculo === TipoCalculo.PORCENTAJE
-            ? porcentajeActual * (1 + dto.valor / 100)
-            : porcentajeActual + Number(dto.valor);
-        }
-
-        producto.precio = (producto.costo ?? 0) * (1 + ((producto.porcentaje ?? 0) / 100)); 
-
-        const historial = new HistorialPrecio();
-        historial.producto = producto;
-        historial.precioAnterior = precioAnterior;
-        historial.precioNuevo = producto.precio; 
-        historial.fecha = new Date();
-        historial.motivo = dto.motivo;
-
-        if (!producto.historialPrecios) {
-          producto.historialPrecios = [];
-        }
-        producto.historialPrecios.push(historial);
-        producto.usuarioUpdated = usuario;
-        
-        await this.repository.save(producto);
-      }
-
-      return { 
-        mensaje: `Se actualizaron los precios de ${productosAfectados.length} productos con éxito.`,
-        actualizados: productosAfectados.length
-      };
-      
-    } catch (error) {
-      this.logger.error('Error en actualización masiva de precios:', error);
-      throw new InternalServerErrorException('Error al procesar la actualización masiva de precios.');
-    }
+  if (productosAfectados.length === 0) {
+    return { mensaje: 'No se encontraron productos que coincidan con los filtros.', actualizados: 0 };
   }
+
+  for (const producto of productosAfectados) {
+    const precioAnterior = producto.precio ?? 0;
+    const costoActual = producto.costo ?? 0;
+    const porcentajeActual = producto.porcentaje ?? 0;
+
+    if (dto.tipoModificacion === TipoModificacion.COSTO) {
+      producto.costo = dto.tipoCalculo === TipoCalculo.PORCENTAJE
+        ? costoActual * (1 + dto.valor / 100)
+        : costoActual + Number(dto.valor);
+    } else if (dto.tipoModificacion === TipoModificacion.MARGEN) {
+      producto.porcentaje = dto.tipoCalculo === TipoCalculo.PORCENTAJE
+        ? porcentajeActual * (1 + dto.valor / 100)
+        : porcentajeActual + Number(dto.valor);
+    }
+
+    
+    producto.calcularPrecio();
+
+    const historial = new HistorialPrecio();
+    historial.producto = producto;
+    historial.precioAnterior = precioAnterior;
+    historial.precioNuevo = producto.precio ?? 0;
+    historial.fecha = new Date();
+    historial.motivo = dto.motivo;
+
+    if (!producto.historialPrecios) {
+      producto.historialPrecios = [];
+    }
+    producto.historialPrecios.push(historial);
+    producto.usuarioUpdated = usuario;
+  }
+
+  await this.repository.saveMasivo(productosAfectados);
+
+  return {
+    mensaje: `Se actualizaron los precios de ${productosAfectados.length} productos con éxito.`,
+    actualizados: productosAfectados.length,
+  };
+}
 
   /**
    * Orquesta todas las validaciones necesarias para crear un producto
