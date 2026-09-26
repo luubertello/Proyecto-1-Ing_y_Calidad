@@ -13,24 +13,43 @@ export default {
         geist: ["var(--font-geist-sans)"],
         geistMono: ["var(--font-geist-mono)"],
       },
-      colors: {
-        // 🎨 Paleta cálida basada en dorado/beige/amarillo
-        principal: "#b5854c",        // Dorado cálido principal
-        hoverPrincipal: "#8a6639",  // Dorado/marrón más oscuro (hover)
-        principalDark: "#5c3d2e",   // Marrón profundo (para fondos oscuros)
-        background: "#fdf7f2",      // Beige claro (fondos generales)
-        surface: "#ffffff",         // Blanco puro (cartas, secciones limpias)
-        onPrimary: "#ffffff",       // Texto claro sobre dorado/marrón
-        onSurface: "#5c3d2e",       // Texto marrón oscuro sobre fondos claros
-        accent: "#f3e1c6",          // Beige/dorado suave para detalles y bordes
-        darkBg: "#3a2b22",          // Fondo marrón oscuro alternativo
-        darkText: "#eaddd0",        // Texto claro en modo oscuro cálido
-        footer: "#5c3d2e",          // Marrón oscuro (footer principal)
+   colors: {
+      // 🎨 Paleta corporativa: azul, blanco y grises
 
-        gradientSoft: "#fdfcf9",    // Beige muy sutil (fondo degrade)
-        gradientLight: "#fff9f4",   // Beige claro cálido (inicio de gradient)
-        gradientWarm: "#fdf2e9",    // Beige cálido más saturado (fin de gradient)
-      },
+      principal: "#2563eb",          // Azul corporativo principal
+      hoverPrincipal: "#1d4ed8",     // Azul más oscuro para hover
+      principalDark: "#1e3a8a",      // Azul marino profundo
+
+      background: "#f8fafc",         // Fondo general gris muy claro
+      surface: "#ffffff",            // Blanco para cards y secciones
+
+      onPrimary: "#ffffff",          // Texto sobre azul
+      onSurface: "#1e293b",          // Texto principal sobre fondos claros
+
+      accent: "#dbeafe",             // Azul muy suave para detalles/bordes
+      darkBg: "#0f172a",              // Fondo oscuro azul/gris
+      darkText: "#e2e8f0",            // Texto claro en modo oscuro
+
+      footer: "#1e293b",             // Footer azul grisáceo oscuro
+
+      primary: "#2563eb",             // Azul corporativo principal
+      "primary-foreground": "#ffffff",
+
+      secondary: "#eff6ff",           // Azul muy claro
+      "secondary-foreground": "#1e3a8a",
+
+      destructive: "#dc2626",         // Rojo para acciones destructivas
+      "destructive-foreground": "#ffffff",
+
+      "accent-foreground": "#1d4ed8",
+
+      ring: "#93c5fd",                // Azul claro para focus
+      input: "#cbd5e1",               // Gris azulado para inputs
+
+      gradientSoft: "#f8fafc",       // Gris/blanco muy sutil
+      gradientLight: "#eff6ff",      // Azul muy claro
+      gradientWarm: "#dbeafe",       // Azul suave para final del gradiente
+    },
     },
   },
   darkMode: "class",
