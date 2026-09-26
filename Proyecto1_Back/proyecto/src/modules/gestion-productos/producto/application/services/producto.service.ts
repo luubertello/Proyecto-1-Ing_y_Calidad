@@ -32,6 +32,7 @@ import { HistorialPrecio } from 'src/modules/gestion-productos/historial-precios
 import { TipoCalculo, TipoModificacion, UpdatePrecioMasivoDto } from '../../dto/update-precio-masivo.dto';
 import { AjustarStockDto } from '../../dto/ajustar-stock.dto';
 import { MovimientoStock, TipoMovimientoStock } from 'src/modules/gestion-productos/movimiento-stock/domain/entities/movimiento-stock.entity';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
 export class ProductoService {
@@ -423,17 +424,21 @@ export class ProductoService {
     const porcentajeActual = producto.porcentaje ?? 0;
 
     if (dto.tipoModificacion === TipoModificacion.COSTO) {
-      producto.costo = dto.tipoCalculo === TipoCalculo.PORCENTAJE
-        ? costoActual * (1 + dto.valor / 100)
-        : costoActual + Number(dto.valor);
-    } else if (dto.tipoModificacion === TipoModificacion.MARGEN) {
-      producto.porcentaje = dto.tipoCalculo === TipoCalculo.PORCENTAJE
-        ? porcentajeActual * (1 + dto.valor / 100)
-        : porcentajeActual + Number(dto.valor);
-    }
+    producto.costo = dto.tipoCalculo === TipoCalculo.PORCENTAJE
+      ? costoActual * (1 + dto.valor / 100)
+      : costoActual + Number(dto.valor);
+  } else if (dto.tipoModificacion === TipoModificacion.MARGEN) {
+    producto.porcentaje = dto.tipoCalculo === TipoCalculo.PORCENTAJE
+      ? porcentajeActual * (1 + dto.valor / 100)
+      : porcentajeActual + Number(dto.valor);
+  }
 
-    
-    producto.calcularPrecio();
+  producto.calcularPrecio();
+
+  
+  if (Number(producto.costo) <= 0 || Number(producto.precio) <= 0) {
+    throw new BadRequestException('La operación de actualización masiva genera precios o costos menores o iguales a cero.');
+  }
 
     const historial = new HistorialPrecio();
     historial.producto = producto;

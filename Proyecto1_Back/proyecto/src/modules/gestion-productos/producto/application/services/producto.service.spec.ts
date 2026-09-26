@@ -11,10 +11,12 @@ import { ProductoRelatedEntitiesValidator } from '../../infraestructure/validato
 import { ProductoUniquenessValidator } from '../../infraestructure/validators/producto-uniqueness.validator.ts';
 import { UsuarioValidator } from 'src/modules/common/utils/validation/usuario-validator';
 import { ProductoDeletePolicy } from '../policies/producto-delete.policy';
+import { TipoModificacion, TipoCalculo } from '../../dto/update-precio-masivo.dto';
 
 describe('ProductoService - Orquestación y DDD', () => {
   let service: ProductoService;
   let mockRepository: any;
+  let mockUsuarioService: any;
 
   beforeEach(async () => {
     // Simulamos el repositorio para no tocar la base de datos real
@@ -22,6 +24,13 @@ describe('ProductoService - Orquestación y DDD', () => {
       findOne: jest.fn(),
       updateEntity: jest.fn(),
       save: jest.fn(),
+      findBy: jest.fn(),
+      findByFiltrosParaMasivo: jest.fn(), 
+      saveMasivo: jest.fn(),
+    };
+
+    mockUsuarioService = {
+      findOne: jest.fn(),                    
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -32,7 +41,7 @@ describe('ProductoService - Orquestación y DDD', () => {
         { provide: LineaService, useValue: {} },
         { provide: MarcaService, useValue: {} },
         { provide: ProveedorService, useValue: {} },
-        { provide: UsuarioService, useValue: {} },
+        { provide: UsuarioService, useValue: mockUsuarioService },
         { provide: ProductoIntrinsicValidationService, useValue: { validarDatosBasicos: jest.fn() } },
         { provide: ProductoValidationService, useValue: { validarEntidadesRelacionadas: jest.fn() } },
         { 
@@ -150,6 +159,140 @@ describe('ProductoService - Orquestación y DDD', () => {
 
       // Then
       expect(productoExistente.precio).toBe(1500);
+      expect(productoExistente.historialPrecios.length).toBe(0);
+    });
+  });
+
+  describe('US-004 / CR-004: Búsqueda flexible de productos', () => {
+  it('debe retornar una lista paginada de productos mapeados según los filtros de búsqueda flexible (denominación, línea, superlínea)', async () => {
+    // 1. Datos simulados que devolvería el repositorio
+    const productoMock = new Producto();
+      productoMock.id = 1;
+      productoMock.denominacion = 'Producto Test A';
+      productoMock.linea = { denominacion: 'Línea 1' } as any;
+      productoMock.estaBajoMinimo = jest.fn().mockReturnValue(false); // Simulamos el método de dominio si lo requiere
+      productoMock.sistema = 0;
+      productoMock.codigoReferencia = 'REF-1';
+
+    const mockRepoResult = {
+      data: [productoMock],
+       total: 1,
+};
+
+    // 2. Espiamos el repositorio para que retorne los datos simulados
+    jest.spyOn(mockRepository, 'findBy').mockResolvedValue(mockRepoResult as any);
+
+    // 3. Ejecutamos el método del servicio pasando los parámetros de búsqueda
+    const resultado = await service.findBy(
+      'Test', // denominacion
+      '',     // codigoProveedor
+      false,  // codProveedorExacto
+      '',     // codigoReferencia
+      0,      // marca_id
+      1,      // linea_id (filtrando por línea)
+      0,      // super_linea_id
+      0,      // proveedor_id
+      false,  // conStock
+      0,      // skip
+      10      // take
+    );
+
+    // 4. Verificaciones
+    expect(mockRepository.findBy).toHaveBeenCalled();
+    expect(resultado).toHaveProperty('data');
+    expect(resultado).toHaveProperty('total');
+    expect(Array.isArray(resultado.data)).toBe(true);
+    expect(resultado.total).toBe(1);
+    });
+    });
+
+  describe('US-006: Actualización masiva de precios (CR-006)', () => {
+    it('debe actualizar los precios masivamente por porcentaje de costo y registrar el historial para cada producto', async () => {
+      // Given
+      const productoExistente = new Producto();
+      productoExistente.id = 1;
+      productoExistente.costo = 1000;
+      productoExistente.porcentaje = 50;
+      productoExistente.precio = 1500;
+      productoExistente.denominacion = 'Producto Test Masivo';
+      productoExistente.historialPrecios = [];
+      
+      // Simulamos la función de dominio
+      productoExistente.calcularPrecio = jest.fn().mockImplementation(function (this: any) {
+        this.precio = this.costo + (this.costo * (this.porcentaje / 100));
+      });
+
+      const usuarioMock = { id: 1, nombre: 'Gerente Comercial' };
+
+      mockUsuarioService.findOne.mockResolvedValue(usuarioMock);
+      mockRepository.findByFiltrosParaMasivo.mockResolvedValue([productoExistente]);
+      mockRepository.saveMasivo.mockResolvedValue([productoExistente]);
+
+      const dto = {
+        lineaId: 1,
+        marcaId: null,
+        proveedorId: null,
+        tipoModificacion: TipoModificacion.COSTO, 
+        tipoCalculo: TipoCalculo.PORCENTAJE,
+        valor: 10,
+        motivo: 'Aumento masivo por inflación',
+      };
+
+      // When
+      const resultado = await service.actualizarPreciosMasivo(dto as any, 1);
+
+      // Then
+      expect(mockUsuarioService.findOne).toHaveBeenCalledWith(1);
+      expect(mockRepository.findByFiltrosParaMasivo).toHaveBeenCalledWith(1, null, null);
+      expect(productoExistente.costo).toBe(1100);
+      expect(productoExistente.precio).toBe(1650);
+      expect(productoExistente.historialPrecios.length).toBe(1);
+      expect(productoExistente.historialPrecios[0].precioAnterior).toBe(1500);
+      expect(productoExistente.historialPrecios[0].precioNuevo).toBe(1650);
+      expect(productoExistente.historialPrecios[0].motivo).toBe('Aumento masivo por inflación');
+      expect(productoExistente.usuarioUpdated).toEqual(usuarioMock);
+      expect(mockRepository.saveMasivo).toHaveBeenCalledWith([productoExistente]);
+      expect(resultado.actualizados).toBe(1);
+    });
+
+    it('debe rechazar toda la operación masiva y lanzar un error si una disminución por monto fijo resulta en un precio <= 0 en al menos un producto', async () => {
+      // Given
+      const productoExistente = new Producto();
+      productoExistente.id = 1;
+      productoExistente.costo = 100;
+      productoExistente.porcentaje = 0;
+      productoExistente.precio = 100; 
+      productoExistente.denominacion = 'Producto Económico';
+      productoExistente.historialPrecios = [];
+      
+      productoExistente.calcularPrecio = jest.fn().mockImplementation(function (this: any) {
+        this.precio = this.costo + (this.costo * (this.porcentaje / 100));
+      });
+
+      const usuarioMock = { id: 1, nombre: 'Gerente Comercial' };
+
+      mockUsuarioService.findOne.mockResolvedValue(usuarioMock);
+      mockRepository.findByFiltrosParaMasivo.mockResolvedValue([productoExistente]);
+      const saveMasivoSpy = jest.spyOn(mockRepository, 'saveMasivo');
+
+      const dto = {
+        lineaId: 1,
+        marcaId: null,
+        proveedorId: null,
+        tipoModificacion: TipoModificacion.COSTO,
+        tipoCalculo: TipoCalculo.MONTO, // Disminución por monto fijo
+        valor: -600, // Descuento excesivo que dejará el costo/precio <= 0
+        motivo: 'Liquidación masiva con error',
+      };
+
+      // When / Then
+      // Validamos que la operación rechace el lote completo lanzando una excepción de dominio
+      await expect(
+        service.actualizarPreciosMasivo(dto as any, 1)
+      ).rejects.toThrow();
+
+      // Verificamos el criterio de atomicidad: ningún artículo debe modificarse ni guardarse en la BD
+      expect(saveMasivoSpy).not.toHaveBeenCalled();
       expect(productoExistente.historialPrecios.length).toBe(0);
     });
   });

@@ -43,7 +43,7 @@ describe('Integración de Endpoints - ProductoController', () => {
 
   it('POST /producto - debe rechazar con 400 si se intenta crear un producto con campos inválidos', async () => {
     const productoInvalido = {
-      costo: -10, // Inválido por regla de dominio
+      costo: -10, 
       porcentaje: 20,
       stock: 5,
       utilizaStockMinimo: true,
@@ -61,7 +61,7 @@ describe('Integración de Endpoints - ProductoController', () => {
 
   it('DELETE /producto/:id - debe permitir eliminar un producto enviando el usuarioId por query', async () => {
     const idProducto = 1;
-    const usuarioId = 99; // Requerido por el @Query('usuarioId', ParseIntPipe)
+    const usuarioId = 99;
 
     const response = await request(app.getHttpServer())
       .delete(`/producto/${idProducto}?usuarioId=${usuarioId}`)
