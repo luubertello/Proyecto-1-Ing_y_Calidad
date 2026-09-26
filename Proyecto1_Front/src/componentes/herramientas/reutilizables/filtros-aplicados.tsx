@@ -50,6 +50,14 @@ const FiltrosAplicados = () => {
             </div>
           )}
 
+          {/* Filtro: SuperLínea */}
+          {valoresFiltros.superLineaId && (
+            <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-900/20 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-800">
+              <Building2 size={16} className="text-indigo-600 dark:text-indigo-400" />
+              <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300">SuperLínea</span>
+            </div>
+          )}
+
           {/* Filtro: Linea */}
           {valoresFiltros.lineaId && (
             <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 px-3 py-2 rounded-lg border border-purple-200 dark:border-purple-800">

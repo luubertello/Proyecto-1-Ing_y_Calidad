@@ -218,52 +218,47 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
   }
 
   async findBy(
-    denominacion: string,
-    codigoProveedor: string,
-    codProveedorExacto: boolean,
-    codigoReferencia: string,
-    marca_id: number,
-    linea_id: number,
-    proveedor_id: number,
-    conStock: boolean,
-    skip: number,
-    take: number,
+    denominacion?: string,
+    codigoProveedor?: string,
+    codProveedorExacto?: boolean,
+    codigoReferencia?: string,
+    marca_id?: number,
+    linea_id?: number,
+    super_linea_id?: number, 
+    proveedor_id?: number,
+    conStock?: boolean,
+    skip: number = 0,
+    take: number = 10,
   ): Promise<{ data: Producto[]; total: number }> {
-    this.logger.warn(`llega`);
+    this.logger.warn(`Iniciando búsqueda de productos...`);
+    
     const query = this.repository
       .createQueryBuilder('producto')
       .leftJoinAndSelect('producto.marca', 'marca')
       .leftJoinAndSelect('producto.linea', 'linea')
+      .leftJoinAndSelect('linea.superLinea', 'superLinea') 
 
     if (denominacion || codigoProveedor || codigoReferencia) {
       const condiciones: string[] = [];
       const parametros: any = {};
 
       if (denominacion) {
-        condiciones.push(
-          `UPPER(producto.denominacion) LIKE UPPER(:denominacion)`,
-        );
+        condiciones.push(`UPPER(producto.denominacion) LIKE UPPER(:denominacion)`);
         parametros.denominacion = `%${denominacion}%`;
       }
 
       if (codigoProveedor) {
         if (codProveedorExacto) {
-          condiciones.push(
-            `UPPER(producto.codigoProveedor) = UPPER(:codigoProveedor)`,
-          );
+          condiciones.push(`UPPER(producto.codigoProveedor) = UPPER(:codigoProveedor)`);
           parametros.codigoProveedor = codigoProveedor;
         } else {
-          condiciones.push(
-            `UPPER(producto.codigoProveedor) LIKE UPPER(:codigoProveedor)`,
-          );
+          condiciones.push(`UPPER(producto.codigoProveedor) LIKE UPPER(:codigoProveedor)`);
           parametros.codigoProveedor = `%${codigoProveedor}%`;
         }
       }
 
       if (codigoReferencia) {
-        condiciones.push(
-          `UPPER(producto.codigoReferencia) LIKE UPPER(:codigoReferencia)`,
-        );
+        condiciones.push(`UPPER(producto.codigoReferencia) LIKE UPPER(:codigoReferencia)`);
         parametros.codigoReferencia = `%${codigoReferencia}%`;
       }
 
@@ -273,26 +268,32 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
     if (marca_id) {
       query.andWhere('marca.id = :marca_id', { marca_id });
     }
+    
     if (linea_id) {
       query.andWhere('linea.id = :linea_id', { linea_id });
     }
 
-    this.logger.warn(`conStock llega como: ${conStock} (${typeof conStock})`);
+    if (super_linea_id) {
+      query.andWhere('superLinea.id = :super_linea_id', { super_linea_id });
+    }
+
+    if (proveedor_id) {
+      query.andWhere('producto.proveedor = :proveedor_id', { proveedor_id });
+    }
 
     if (conStock) {
       query.andWhere('producto.stock > 0');
     }
+    
     query.andWhere('producto.deletedAt IS NULL');
     query.orderBy('producto.denominacion', 'ASC');
+    
     // Paginación
     query.skip(skip).take(take);
 
     const [data, total] = await query.getManyAndCount();
-    this.logger.warn(`conStock llega como 1: ${data}`);
-    return {
-      data,
-      total,
-    };
+    
+    return { data, total };
   }
 
   async findByRapido(

@@ -48,6 +48,9 @@ export default function ConsultarSuperLineas() {
     setBuscar({ cont: 0, componente: NOMBRE_COMPONENTE });
     setFiltrosNecesarios({ denominacion: true });
     setFiltrosInicializados(true);
+    return () => {
+      setFiltrosNecesarios({}); 
+    };
   }, []);
 
   useEffect(() => {

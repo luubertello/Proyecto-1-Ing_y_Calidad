@@ -16,7 +16,7 @@ import { PaginationWithDenominacionDto } from 'src/modules/common/dto/busquedas/
 import { NormalizeDenominacionPipe } from 'src/modules/common/pipes/normalize-denominations.pipe';
 import { AuthGuard } from 'src/modules/gestion-usuario/auth/auth.guard';
 import { Roles } from 'src/modules/gestion-usuario/auth/roles.decorator';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { NormalizeDenominacionSearchPipe } from 'src/modules/common/pipes/normalize-denominations-search.pipe';
 import { AuditoriaDto } from 'src/modules/gestion-sistema/auditoria/dto/auditoria.dto';
 import { SuperLineaService } from '../services/super-linea.service';
@@ -47,6 +47,19 @@ export class SuperLineaController {
   findByDenominacionFiltered(@Query() paginationDto: PaginationWithDenominacionDto) {
     const { denominacion = '', skip, take, incluirEliminados } = paginationDto;
     return this.service.findByDenominacionFiltered(denominacion, skip, take, incluirEliminados);
+  }
+
+  @Get('find-all-for-select')
+  @Roles('Root', 'Administrador', 'Empleado', 'Repositor', 'Vendedor') 
+  @ApiOperation({ summary: 'Buscar super líneas para combo (select)' })
+  async findAllParaSelect(
+    @Query('denominacion') denominacion?: string,
+  ) {
+    const term = denominacion || '';
+    
+    const resultados = await this.service.findAllFor(term);
+    
+    return this.service.findAllFor(denominacion || '');
   }
 
   @Get(':id')

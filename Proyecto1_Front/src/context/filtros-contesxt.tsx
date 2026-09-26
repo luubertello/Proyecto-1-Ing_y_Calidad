@@ -5,9 +5,10 @@ import { FILTROS_INICIALES, TipoModuloFiltro } from "../config/filtros-iniciales
 interface ValoresFiltros {
   denominacion?: string;
   codigoProveedor?: string;
-  codigoReferencia?: string;
+ codigoReferencia?: string;
   codProveedorExacto?: boolean;
   codReferenciaExacto?: boolean;
+  superLineaId?: number;
   lineaId?: number;
   denominacionLinea?: string;
   sublineaId?: number;
@@ -85,28 +86,28 @@ export const FiltrosProvider = ({ children }: { children: ReactNode }) => {
   const [filtrosNecesarios, setFiltrosNecesarios] = useState<FiltrosSideBar>({
     denominacion: false,
     codigoProveedor: false,
-    codigoReferencia: false,
+  //  codigoReferencia: false,
     linea: false,
-    sublinea: false,
+  //  sublinea: false,
     marca: false,
     conStock: false,
-    fechaDesde: false,
-    fechaHasta: false,
-    cliente: false,
+  //  fechaDesde: false,
+  //  fechaHasta: false,
+  //  cliente: false,
     proveedor: false,
-    condicionIva: false,
-    provincia: false,
-    familiaBanco: false,
-    orden: false,
-    estadoAbiertoCerrado: false,
-    fechaIngresoDesde: false,
-    fechaIngresoHasta: false,
-    puntoVentaId: false,
-    importeDesde: false,
-    importeHasta: false,
-    fechaVencimientoDesde: false,
-    fechaVencimientoHasta: false,
-    estadoOrden:false, //agregué esta línea para ordenes de pago
+  //  condicionIva: false,
+  //  provincia: false,
+  //  familiaBanco: false,
+  //  orden: false,
+  //  estadoAbiertoCerrado: false,
+  //  fechaIngresoDesde: false,
+  //  fechaIngresoHasta: false,
+  //  puntoVentaId: false,
+  //  importeDesde: false,
+  // importeHasta: false,
+  //  fechaVencimientoDesde: false,
+  //  fechaVencimientoHasta: false,
+  //  estadoOrden:false, //agregué esta línea para ordenes de pago
   });
   const [valoresFiltros, setValoresFiltros] = useState<ValoresFiltros>({});
 

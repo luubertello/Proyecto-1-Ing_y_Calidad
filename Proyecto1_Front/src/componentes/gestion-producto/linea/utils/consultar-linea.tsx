@@ -60,6 +60,9 @@ export default function ConsultarLineas() {
     setBuscar({ cont: 0, componente: NOMBRE_COMPONENTE });
     setFiltrosNecesarios({ denominacion: true });
     setFiltrosInicializados(true);
+    return () => {
+      setFiltrosNecesarios({}); 
+    };
   }, []);
 
   useEffect(() => {

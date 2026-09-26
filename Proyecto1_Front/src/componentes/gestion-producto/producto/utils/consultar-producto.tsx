@@ -125,6 +125,7 @@ export default function ConsultarProductos() {
     setFiltrosNecesarios({
       denominacion: true,
       codigoProveedor: true,
+      superlinea: true,
       linea: true,
       marca: true,
       proveedor: true,
@@ -135,6 +136,9 @@ export default function ConsultarProductos() {
     setTimeout(() => {
       inicializacionCompleta.current = true;
     }, 500);
+    return () => {
+      setFiltrosNecesarios({}); 
+    };
   }, []);
 
   useEffect(() => {
@@ -385,6 +389,7 @@ export default function ConsultarProductos() {
       denominacion: valoresFiltros.denominacion,
       codigoProveedor: valoresFiltros.codigoProveedor,
       codigoReferencia: valoresFiltros.codigoReferencia,
+      superLineaId: valoresFiltros.superLineaId,
       lineaId: valoresFiltros.lineaId,
       marcaId: valoresFiltros.marcaId,
       proveedorId: valoresFiltros.proveedorId,
@@ -431,6 +436,7 @@ export default function ConsultarProductos() {
       codigoReferencia: valoresFiltros.codigoReferencia,
       codProveedorExacto: valoresFiltros.codProveedorExacto,
       codReferenciaExacto: valoresFiltros.codReferenciaExacto,
+      superLineaId: valoresFiltros.superLineaId,
       lineaId: valoresFiltros.lineaId,
       marcaId: valoresFiltros.marcaId,
       proveedorId: valoresFiltros.proveedorId,

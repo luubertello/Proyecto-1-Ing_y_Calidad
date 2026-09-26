@@ -57,6 +57,9 @@ export default function CambioPreciosMasivo() {
     limpiarFiltros();
     setBuscar({ cont: 0, componente: "cambio-precios-masivo" });
     setFiltrosNecesarios({ marca: true, linea: true, sublinea: true });
+    return () => {
+      setFiltrosNecesarios({}); 
+    };
   }, []);
 
   const fetchMarcas = useCallback(async () => {

@@ -29,6 +29,9 @@ export function useProductoFiltros() {
     });
     setValoresFiltros(filtrosInicialesConsultarProducto);
     setFiltrosInicializados(true);
+    return () => {
+      setFiltrosNecesarios({}); 
+    };
   }, []);
 
   return { filtrosInicializados: filtrosInicializados };

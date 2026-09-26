@@ -64,6 +64,9 @@ export default function ConsultarLocalidad() {
     setBuscar({ cont: 0, componente: NOMBRE_COMPONENTE });
     setFiltrosNecesarios({ denominacion: true, provincia: true });
     setFiltrosInicializados(true);
+    return () => {
+      setFiltrosNecesarios({}); 
+    };
   }, []);
 
   useEffect(() => {

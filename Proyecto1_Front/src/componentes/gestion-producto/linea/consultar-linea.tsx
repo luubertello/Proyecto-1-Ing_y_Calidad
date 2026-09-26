@@ -61,6 +61,9 @@ export default function ConsultarSuperlinea() {
       denominacion: true,
     });
     setFiltrosInicializados(true);
+    return () => {
+      setFiltrosNecesarios({}); 
+    };
   }, []);
 
   useEffect(() => {

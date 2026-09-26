@@ -11,6 +11,9 @@ export function useMarcasFiltros() {
     setBuscar({ cont: 0, componente: "consultar-marca" });
     setFiltrosNecesarios({ denominacion: true });
     setFiltrosInicializados(true);
+    return () => {
+      setFiltrosNecesarios({}); 
+    };
   }, []);
 
   return {
