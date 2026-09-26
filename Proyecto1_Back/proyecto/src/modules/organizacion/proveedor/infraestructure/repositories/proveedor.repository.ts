@@ -67,6 +67,10 @@ export class ProveedorRepository implements IProveedorRepository {
     return this.persistenceService.findAll(skip, take);
   }
 
+  async findAllForSelect(denominacion: string): Promise<Proveedor[]> {
+    return this.persistenceService.findAllForSelect(denominacion);
+  }
+
   async findBy(
     denominacion: string,
     condicionIvaId: number,

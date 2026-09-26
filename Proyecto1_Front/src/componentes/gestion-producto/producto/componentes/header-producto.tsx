@@ -1,4 +1,4 @@
-import { Package, PlusCircle, Search } from "lucide-react";
+import { Package, PlusCircle, Search, CircleDollarSign } from "lucide-react"; // 👈 Importamos CircleDollarSign
 import { Button } from "../../../ui/Button";
 import { CardHeader, CardTitle } from "../../../ui/Card";
 import { Input } from "../../../ui/Input";
@@ -14,6 +14,7 @@ interface Props {
   onChangeExacto: (value: boolean) => void;
   onBuscarRapido: () => void;
   onNuevo: () => void;
+  onActualizacionMasiva?: () => void;
   total: number;
   mostrados: number;
   paginaActual: number;
@@ -29,6 +30,7 @@ export function ProductosHeader({
   onChangeExacto,
   onBuscarRapido,
   onNuevo,
+  onActualizacionMasiva, 
   total,
   mostrados,
   paginaActual,
@@ -52,7 +54,6 @@ export function ProductosHeader({
               placeholder="Código..."
               className="text-black pl-10"
               onChange={(e) => onChangeCodigo(e.target.value)}
-             // onKeyDown={(e) => e.key === "Enter" && onBuscarRapido()}
             />
           </div>
 
@@ -77,11 +78,19 @@ export function ProductosHeader({
           totalItems={total}
           currentPage={paginaActual}
         />
+        
+        {puedeAgregarProducto(roles) && onActualizacionMasiva && (
+          <Button onClick={onActualizacionMasiva} className="bg-amber-500 hover:bg-amber-600 text-white border-0">
+            <CircleDollarSign className="mr-2 h-4 w-4" />
+            Act. Masiva
+          </Button>
+        )}
+
         {puedeAgregarProducto(roles) && (
-           <Button onClick={onNuevo} className="bg-blue-500 hover:bg-blue-700 text-white">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Añadir
-        </Button>
+          <Button onClick={onNuevo} className="bg-blue-500 hover:bg-blue-700 text-white">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Añadir
+          </Button>
         )}
       </div>
     </CardHeader>

@@ -109,6 +109,12 @@ export class ProveedorService {
     );
   }
 
+  async findAllForSelect(denominacion: string) {
+    const resultados = await this.repository.findAllForSelect(denominacion);
+    
+    return { data: resultados }; 
+  }
+
 
   async findBy(
     empresaId: number,

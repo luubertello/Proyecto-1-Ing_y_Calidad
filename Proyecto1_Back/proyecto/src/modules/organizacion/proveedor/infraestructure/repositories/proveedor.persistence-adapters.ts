@@ -394,5 +394,20 @@ export class ProveedorPersistenceAdapter implements IProveedorRepository {
       .getOne();
   }
 
+  async findAllForSelect(denominacion: string): Promise<Proveedor[]> {
+    const query = this.repository.createQueryBuilder('proveedor')
+      .where('proveedor.deletedAt IS NULL');
+
+    if (denominacion && denominacion.trim() !== '') {
+      query.andWhere('LOWER(proveedor.denominacion) LIKE :denominacion', {
+        denominacion: `%${denominacion.toLowerCase()}%`,
+      });
+    }
+
+    query.orderBy('proveedor.denominacion', 'ASC');
+
+    return await query.getMany();
+  }
+
  
 }

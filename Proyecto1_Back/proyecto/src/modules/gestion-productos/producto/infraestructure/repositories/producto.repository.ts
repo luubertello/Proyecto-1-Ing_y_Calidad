@@ -139,6 +139,10 @@ export class ProductoRepository implements IProductoRepository {
     return this.persistenceService.actualizarPrecio(id, dto, usuario);
   }
 
+  async findByFiltrosParaMasivo(lineaId?: number, marcaId?: number, proveedorId?: number): Promise<Producto[]> {
+    return this.persistenceService.findByFiltrosParaMasivo(lineaId, marcaId, proveedorId);
+  }
+
 
   async findByDenominacion(denominacion: string): Promise<Producto | null> {
     const entity =

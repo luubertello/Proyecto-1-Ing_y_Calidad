@@ -11,6 +11,7 @@ import {
   Query,
   UsePipes,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 
 import { CreateProductoDto } from '../../dto/create-producto.dto';
@@ -31,6 +32,7 @@ import { NormalizeDenominacionSearchPipe } from 'src/modules/common/pipes/normal
 import { DenominacionBusquedaDto } from 'src/modules/common/dto/denominacion-busqueda.dto';
 import { SearchProductoRapidoDto } from '../../dto/search-producto-rapido.dto';
 import { ProductoService } from '../services/producto.service';
+import { UpdatePrecioMasivoDto } from '../../dto/update-precio-masivo.dto';
 
 
 @ApiTags('Gestion Productos')
@@ -195,5 +197,13 @@ export class ProductoController {
   ): Promise<AuditoriaDto> {
     const data = await this.service.findByIdConAuditoria(id);
     return data;
+  }
+
+  @Patch('actualizacion-masiva')
+  @Roles('Root', 'Administrador', 'Empleado')
+  async actualizacionMasivaPrecios(
+    @Body() dto: UpdatePrecioMasivoDto,
+  ) {
+    return await this.service.actualizarPreciosMasivo(dto, dto.usuarioId);
   }
 }

@@ -32,6 +32,7 @@ import { NotificacionModal } from "../../../NotificacionModal/modales/Notificaci
 import { ProductoNotificacion, EntidadTipo } from "../../../NotificacionModal/interfaces/notificacion.types";
 import { getRoles, getUsuarioId } from "../../../../utils/auth";
 import { puedeHacerAcciones } from "../domain/permisos-producto";
+import ActualizacionMasivaModal from "../modales/actualizacion-masiva-modal";
 
 
 export default function ConsultarProductos() {
@@ -57,7 +58,30 @@ export default function ConsultarProductos() {
   const [auditoria, setAuditoria] = useState<Auditoria>({} as Auditoria);
   const isMounted = useRef(false);
   const inicializacionCompleta = useRef(false);
+  const [mostrarActualizacionMasiva, setMostrarActualizacionMasiva] = useState(false);
+  const handleAbrirActualizacionMasiva = () => {
+      setMostrarActualizacionMasiva(true);
+    };
 
+    const handleCerrarActualizacionMasiva = () => {
+      setMostrarActualizacionMasiva(false);
+    };
+
+    const handleSuccessActualizacionMasiva = async (mensaje: string) => {
+      setMostrarActualizacionMasiva(false);
+
+      addAlert({
+      type: TipoAlerta.SUCCESS,
+      title: TituloAlerta.SUCCESS,
+      message: mensaje,
+      autoClose: true,
+      duration: 3000,
+    });
+
+    await handleBuscarProductos();
+  };
+
+    
   
    // =========================
     // PAGINACIÓN
@@ -259,6 +283,7 @@ export default function ConsultarProductos() {
       });
     }
   };
+
 
   const handleMostrarInfo = async (id: number) => {
     if (id) {
@@ -520,6 +545,7 @@ export default function ConsultarProductos() {
                 onChangeExacto={setExacto}
                 onBuscarRapido={() => handleBuscarProductosRapido(true)}
                 onNuevo={openModal}
+                onActualizacionMasiva={handleAbrirActualizacionMasiva}
                 total={entidadesTotales}
                 mostrados={productos.length}
                 paginaActual={paginaActual}
@@ -624,6 +650,15 @@ export default function ConsultarProductos() {
         onSuccessActualizar={handleActualizarSuccess}
         onRefetch={handleBuscarProductos}
       />
+
+      {mostrarActualizacionMasiva && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <ActualizacionMasivaModal
+            onClose={handleCerrarActualizacionMasiva} 
+            onSuccess={handleSuccessActualizacionMasiva} 
+          />
+        </div>
+      )}
 
       {productoNotificacionSeleccionado && (
         <NotificacionModal

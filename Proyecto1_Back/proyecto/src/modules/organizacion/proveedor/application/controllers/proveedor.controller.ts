@@ -83,6 +83,15 @@ export class ProveedorController {
     );
   }
 
+  @Get('find-all-for-select')
+  @Roles('Root', 'Administrador', 'Empleado', 'Repositor', 'Vendedor')
+  @ApiOperation({ summary: 'Buscar todos los proveedores para combos (select)' })
+  async findAllProveedoresForSelect(
+    @Query('denominacion') denominacion?: string,
+  ) {
+    return this.service.findAllForSelect(denominacion || '');
+  }
+
   @Get('find-all-for-condiciones-iva/select')
   @Roles('Root', 'Administrador', 'Empleado')
   @ApiOperation({ summary: 'Buscar las condiciones de IVA para combo' })

@@ -140,6 +140,19 @@ const ProductoService = {
     }
   },
 
+  actualizarPreciosMasivo: async (payload: any) => {
+    try {
+      const token = localStorage.getItem("Token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const { data } = await axios.patch(`${apiUrl}/producto/actualizacion-masiva`, payload, { headers });
+      return data;
+    } catch (error) {
+      console.error("Error en actualización masiva:", error);
+      throw error;
+    }
+  },
+
   
 };
 

@@ -518,6 +518,24 @@ export class ProductoPersistenceAdapter implements IProductoRepository {
     });
   }
 
+  async findByFiltrosParaMasivo(lineaId?: number, marcaId?: number, proveedorId?: number): Promise<Producto[]> {
+    const query = this.repository.createQueryBuilder('producto')
+      .leftJoinAndSelect('producto.historialPrecios', 'historial')
+      .where('producto.deletedAt IS NULL');
+
+    if (lineaId) {
+      query.andWhere('producto.linea = :lineaId', { lineaId });
+    }
+    if (marcaId) {
+      query.andWhere('producto.marca = :marcaId', { marcaId });
+    }
+    if (proveedorId) {
+      query.andWhere('producto.proveedor = :proveedorId', { proveedorId });
+    }
+
+    return await query.getMany();
+  }
+
     async save(producto: Producto): Promise<Producto> {
     return await this.repository.save(producto);
   }

@@ -21,6 +21,8 @@ export interface IProveedorRepository {
     gasto: boolean,
   ): Promise<Proveedor[]>;
 
+  findAllForSelect(denominacion: string): Promise<Proveedor[]>
+
   findAllSinSistemaFor(denominacion: string): Promise<Proveedor[]>;
   findOne(id: number): Promise<Proveedor | null>;
   findByIdConAuditoria(id: number): Promise<Proveedor | null>;
