@@ -149,6 +149,12 @@ export class ProductoDto {
   @IsInt()
   cantidadPorPack: number;
 
+  @ApiProperty({
+    description: 'Indica si el producto está en alerta de stock bajo (stock <= stockMinimo)',
+  })
+  @IsBoolean()
+  stockBajo: boolean;
+
   @ApiProperty({ example: 123 })
   @Type(() => Number)
   @IsInt()

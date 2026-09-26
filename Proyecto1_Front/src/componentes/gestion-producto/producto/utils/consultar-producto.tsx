@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Info, Pencil, Trash, Box, CircleDollarSign, Shuffle, Star } from "lucide-react";
+import { Info, Pencil, Trash, Box, CircleDollarSign, Shuffle, Star, AlertTriangle } from "lucide-react";
 import { Button } from "../../../ui/Button";
 import ProductoService from "../services/producto-service";
 import { formatCantidades, formatPrice } from "../../../herramientas/formateo-de-campos/fucion-formateo";
@@ -498,13 +498,19 @@ export default function ConsultarProductos() {
       type: "text",
       editable: false,
       formatFunction: ({ value, row }) => (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-1">
           <div
-            className="flex items-center gap-1 truncate whitespace-nowrap max-w-[700px]"
+            className="flex items-center gap-2 truncate whitespace-nowrap max-w-[700px]"
             title={typeof value === "string" ? `${value}${row.observacion ? `\n${row.observacion}` : ""}` : undefined}
           >
             <Star size={16} className={row.esAlternativo ? "text-red-500 shrink-0" : "text-yellow-500 shrink-0"} />
             <span>{value}</span>
+            {row.stockBajo && (
+              <span className="flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-0.5 rounded-full shrink-0">
+                <AlertTriangle size={12} />
+                Stock bajo
+              </span>
+            )}
           </div>
           {row.observacion && <div className="text-sm text-gray-500 truncate max-w-[700px]">{row.observacion}</div>}
         </div>

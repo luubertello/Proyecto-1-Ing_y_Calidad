@@ -89,6 +89,7 @@ export interface ConsultarProducto {
   precioMayoristaConIva: number;
   precioClienteConIva: number;
   precioOfertaConIva: number;
+  stockBajo: boolean;
 }
 
 
@@ -176,6 +177,7 @@ export interface ProductoSeleccionado {
   stockMinimo: number;
   cantidadOferta: number;
   oferta: boolean;
+  stockBajo: boolean;
 }
 
 export interface ProductoCombo {

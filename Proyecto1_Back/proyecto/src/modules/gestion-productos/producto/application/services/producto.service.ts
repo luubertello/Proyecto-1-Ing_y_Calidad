@@ -30,6 +30,7 @@ import { ProductoDeletePolicy } from '../policies/producto-delete.policy';
 import { Presentacion } from '../../domain/value-objects/presentacion.vo';
 import { HistorialPrecio } from 'src/modules/gestion-productos/historial-precios/domain/entities/historial-precios.entity';
 import { TipoCalculo, TipoModificacion, UpdatePrecioMasivoDto } from '../../dto/update-precio-masivo.dto';
+import { AjustarStockDto } from '../../dto/ajustar-stock.dto';
 
 @Injectable()
 export class ProductoService {
@@ -562,6 +563,22 @@ export class ProductoService {
 
     return { marca, linea, usuario };
   }
+
+  async ajustarStockManual(id: number, dto: AjustarStockDto) {
+  const producto = await this.findEntityById(id);
+  const usuario = await this.usuarioValidator.validarUsuarioExiste(dto.usuarioId);
+
+  producto.ajustarStock(dto.cantidad, dto.motivo);
+  producto.usuarioUpdated = usuario;
+
+  const entityActualizada = await this.repository.save(producto);
+
+  return MessageFrontUtils.createSimple(
+    `${this.ENTITY_NAME}`,
+    entityActualizada.denominacion,
+    'editada',
+  );
+}
 
 
 }

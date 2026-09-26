@@ -113,6 +113,8 @@ export class GetProductoDto {
   @Min(0)
   stockMinimo: number;
 
+  
+
   @ApiProperty({
     description: 'Indica si posee utiliza Stock minimo',
     type: Boolean,
@@ -127,6 +129,14 @@ export class GetProductoDto {
   @IsInt()
   @Min(0)
   cantidadPorPack: number;
+
+    @ApiProperty({
+    description: 'Indica si el producto está en alerta de stock bajo (stock <= stockMinimo)',
+    type: Boolean,
+    example: false,
+  })
+  @IsBoolean()
+  stockBajo: boolean;
 
   @IsString()
   codigoReferencia: string;

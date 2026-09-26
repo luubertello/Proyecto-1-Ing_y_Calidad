@@ -153,7 +153,21 @@ const ProductoService = {
     }
   },
 
+  ajustarStock: async (id: number, payload: { cantidad: number; motivo: string; usuarioId: number }) => {
+    try {
+      const token = localStorage.getItem("Token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      const { data } = await axios.patch(`${apiUrl}/producto/${id}/ajustar-stock`, payload, { headers });
+      return data;
+    } catch (error) {
+      console.error("Error al ajustar stock:", error);
+      throw error;
+    }
+  },
+
   
 };
+
 
 export default ProductoService;

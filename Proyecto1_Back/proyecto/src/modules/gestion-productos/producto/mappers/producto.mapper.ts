@@ -31,7 +31,6 @@ export class ProductoMapper {
       alicuota: alicuota,
       costo: entity.costo ?? 0,
 
-
       precio: precio,
       precioConIva: +(precio * (1 + alicuota / 100)).toFixed(2),
       ubicacion: entity.ubicacion ?? '',
@@ -43,7 +42,7 @@ export class ProductoMapper {
       cantidadPorPack: entity.cantidadPorPack ?? 0,
       sistema: entity.sistema,
       codigoReferencia: entity.codigoReferencia ?? '',
-
+      stockBajo: entity.estaBajoMinimo(),
     };
   }
 
@@ -102,6 +101,7 @@ export class ProductoMapper {
       cantidadPorPack: entity.cantidadPorPack ?? 0,
       sistema: entity.sistema,
       codigoReferencia: entity.codigoReferencia ?? '',
+       stockBajo: entity.estaBajoMinimo(),
 
     
       

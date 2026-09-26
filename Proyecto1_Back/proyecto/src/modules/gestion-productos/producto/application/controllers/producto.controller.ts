@@ -33,6 +33,7 @@ import { DenominacionBusquedaDto } from 'src/modules/common/dto/denominacion-bus
 import { SearchProductoRapidoDto } from '../../dto/search-producto-rapido.dto';
 import { ProductoService } from '../services/producto.service';
 import { UpdatePrecioMasivoDto } from '../../dto/update-precio-masivo.dto';
+import { AjustarStockDto } from '../../dto/ajustar-stock.dto';
 
 
 @ApiTags('Gestion Productos')
@@ -207,5 +208,14 @@ export class ProductoController {
     @Body() dto: UpdatePrecioMasivoDto,
   ) {
     return await this.service.actualizarPreciosMasivo(dto, dto.usuarioId);
+  }
+
+  @Patch(':id/ajustar-stock')
+  @Roles('Root', 'Administrador', 'Empleado', 'Repositor')
+  async ajustarStock(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: AjustarStockDto,
+  ) {
+    return await this.service.ajustarStockManual(id, dto);
   }
 }

@@ -1,4 +1,4 @@
-import { Bell } from "lucide-react";
+import { AlertTriangle, Bell } from "lucide-react";
 import type { ConsultarProducto } from "../../../../interfaces/gestion-producto/producto/interfaces-producto";
 import { formatPrice } from "../../../herramientas/formateo-de-campos/fucion-formateo";
 import { ActionButton } from "../../../herramientas/reutilizables/action-button";
@@ -62,10 +62,15 @@ export function DatosCard({
           >
             {producto.stock}
           </p>
+          {producto.stockBajo && (
+            <span className="mt-1 inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+              <AlertTriangle size={12} />
+              Stock bajo
+            </span>
+          )}
         </div>
       </div>
 
-      
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
           <p className="text-xs text-gray-500">Precio Ocasional</p>
