@@ -88,13 +88,6 @@ export class CreateProductoDto {
   @Min(0.01, { message: 'El costo debe ser mayor a 0.' })
   costo?: number;
 
-  @IsBoolean()
-  utilizaPack: boolean;
-
-
-  @IsOptional()
-  @IsInt()
-  cantidadPorPack?: number;
 
   @IsOptional()
   @IsNumber()
