@@ -54,6 +54,10 @@ export default function ConsultarSuperLineas() {
   }, []);
 
   useEffect(() => {
+    document.title = "Superlineas";
+  }, []);
+
+  useEffect(() => {
     if (buscar.cont > 0 && buscar.componente === NOMBRE_COMPONENTE) {
       handleBuscarSuperLineas(true);
     }

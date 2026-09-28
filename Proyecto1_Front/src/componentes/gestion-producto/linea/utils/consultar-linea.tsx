@@ -66,6 +66,10 @@ export default function ConsultarLineas() {
   }, []);
 
   useEffect(() => {
+    document.title = "Lineas";
+  }, []);
+
+  useEffect(() => {
     if (buscar.cont > 0 && buscar.componente === NOMBRE_COMPONENTE) {
       handleBuscarLineas(true);
     }

@@ -14,6 +14,9 @@ interface LoginPageProps {
 
 const LoginPage: React.FC<LoginPageProps> = () => {
   useEffect(() => {
+    document.title = "Iniciar Sesion";
+  }, []);
+  useEffect(() => {
     localStorage.removeItem("Token"); // Borra el token al cargar la página
   }, []);
 

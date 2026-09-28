@@ -179,6 +179,10 @@ export default function ConsultarProveedores() {
     }
   }, [filtrosProveedor]);
 
+  useEffect(() => {
+    document.title = "Proveedores";
+  }, []);
+
   const handleImprimir = async () => {
     const payload = {
       columnas: columnasSeleccionadas,
