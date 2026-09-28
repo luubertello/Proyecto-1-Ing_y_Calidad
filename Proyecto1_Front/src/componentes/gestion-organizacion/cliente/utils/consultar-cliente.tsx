@@ -185,10 +185,6 @@ export default function ConsultarClientes() {
     }
   }, [paginaActual, filtrosInicializados]);
 
-  useEffect(() => {
-    document.title = "Clientes";
-  }, []);
-
   // Disparo por cambio de filtros locales
   useEffect(() => {
     if (filtrosInicializados) {

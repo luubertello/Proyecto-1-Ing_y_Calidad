@@ -66,10 +66,6 @@ export default function ConsultarPersonal() {
   }, []);
 
   useEffect(() => {
-    document.title = "Personal";
-  }, []);
-
-  useEffect(() => {
     if (buscar.cont > 0 && buscar.componente === NOMBRE_COMPONENTE) {
       handleBuscarPersonales(true);
     }

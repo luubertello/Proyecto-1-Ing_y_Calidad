@@ -4,12 +4,8 @@ import { Card, CardContent, CardDescription, CardTitle } from "../componentes/ui
 import { Package, Phone, Mail, MapPin, Users, Truck, Wheat } from "lucide-react";
 import logo from "../assets/imagenes/Logo.png";
 import { APP_CONFIG } from "../config/versionamiento";
-import { useEffect } from "react";
 
 export default function HomePage() {
-  useEffect(() => {
-    document.title = "Inicio";
-  }, []);
   return (
     <div className="flex flex-col h-screen overflow-y-auto bg-gradient-to-b from-white via-background to-gradientSoft text-principalDark">
       {/* Header */}

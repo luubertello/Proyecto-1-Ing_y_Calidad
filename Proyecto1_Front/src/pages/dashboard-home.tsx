@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ShoppingBag,
   ShoppingCart,
@@ -173,6 +173,3 @@ const DashboardHome = () => {
 };
 
 export default DashboardHome;
-useEffect(() => {
-    document.title = "Dashboard";
-  }, []);

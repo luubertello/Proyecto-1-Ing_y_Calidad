@@ -221,9 +221,6 @@ export default function ConsultarProductos() {
   // =========================================================
 
   useEffect(() => {
-    document.title = "Productos";
-  }, []);
-  useEffect(() => {
     limpiarFiltros();
 
     setBuscar({

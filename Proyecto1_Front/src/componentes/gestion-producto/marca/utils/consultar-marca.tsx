@@ -70,10 +70,6 @@ export default function ConsultarMarcas() {
   }, []);
 
   useEffect(() => {
-    document.title = "Marcas";
-  }, []);
-
-  useEffect(() => {
     if (buscar.cont > 0 && buscar.componente === NOMBRE_COMPONENTE) {
       handleBuscarMarcas(true);
     }

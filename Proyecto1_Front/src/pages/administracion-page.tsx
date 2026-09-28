@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { SidebarProvider } from "../componentes/ui/SideBar";
 import { Navbar } from "../componentes/navbar";
 import { Outlet } from "react-router-dom";
@@ -69,9 +69,6 @@ interface AdministracionPageProps {
 }
 
 const AdministracionPage: React.FC<AdministracionPageProps> = () => {
-  useEffect(() => {
-    document.title = "Administracion";
-  }, []);
   return (
     <SidebarProvider>
       <FiltrosProvider>
