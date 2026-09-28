@@ -174,6 +174,7 @@ export class ProductoService {
     // =========================================================
     if (precioAnterior !== producto.precio) {
       const historial = new HistorialPrecio();
+      historial.producto = producto;
       historial.precioAnterior = precioAnterior;
       historial.precioNuevo = producto.precio ?? 0;
       
